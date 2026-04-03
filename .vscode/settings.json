@@ -1,0 +1,11 @@
+{
+  "python.condaPath": "/opt/homebrew/Caskroom/miniforge/base/bin/conda",
+  "python.defaultInterpreterPath": "/opt/homebrew/Caskroom/miniforge/base/envs/dellma/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "terminal.integrated.env.osx": {
+    "PATH": "/opt/homebrew/Caskroom/miniforge/base/bin:${env:PATH}"
+  },
+  "python-envs.pythonProjects": [],
+  "python-envs.defaultEnvManager": "ms-python.python:conda",
+  "python-envs.defaultPackageManager": "ms-python.python:conda"
+}

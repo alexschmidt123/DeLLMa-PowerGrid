@@ -1,0 +1,12 @@
+# Format: [GOAL] / [ACTIONS] (one per line) / [CONTEXT]. Run from project root: python reproduction_visualization/run_my_question.py
+
+[GOAL]
+I want to maximize my revenue with 10 acres of land. I need to choose one crop to plant for the next season.
+
+[ACTIONS]
+Plant 10 acres of apples
+Plant 10 acres of avocados
+Plant 10 acres of grapes
+
+[CONTEXT]
+This year the region experienced drought; apple yields were down but prices were high. Avocado demand is growing and imports are strong. Grape harvest was good but export tariffs may affect prices next year. I have access to the same USDA report summaries and California price and yield statistics that a farmer would use.
