@@ -1,0 +1,3 @@
+converged=True
+buses=14, lines=15, trafo=5
+gen=4, ext_grid=1, load=11

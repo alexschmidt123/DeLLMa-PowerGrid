@@ -1,0 +1,5 @@
+{
+    "M": 1.05,
+    "K": 0.95,
+    "comment": "Ground-truth homogeneous scales for code-only evaluation (not shown to the LLM in prompts)."
+}
