@@ -61,22 +61,33 @@ class DeLLMaAgent:
         action_config: Optional[dataclass] = None,
         preference_config: Optional[dataclass] = None,
         agent_name: str = "farmer",
+        data_layout: str = "reports",
     ):
-        if not os.path.exists(os.path.join(path, "reports", "summary")):
-            os.makedirs(os.path.join(path, "reports", "summary"))
+        # "reports": agriculture-style path/reports/... | "flat": path/ + path/summary/ (stocks-like root files)
+        self._data_layout = data_layout
+        if data_layout == "flat":
+            summary_dir = os.path.join(path, "summary")
+            if not os.path.exists(summary_dir):
+                os.makedirs(summary_dir)
+            stem = raw_context_fname.split(".")[0] if raw_context_fname else "context"
+            self.cache_context_fname = os.path.join(summary_dir, stem + ".json")
+            self.raw_context_fname = os.path.join(path, raw_context_fname)
+        else:
+            if not os.path.exists(os.path.join(path, "reports", "summary")):
+                os.makedirs(os.path.join(path, "reports", "summary"))
 
-        self.cache_context_fname = os.path.join(
-            path, "reports", "summary", raw_context_fname.split(".")[0] + ".json"
-        )
+            self.cache_context_fname = os.path.join(
+                path, "reports", "summary", raw_context_fname.split(".")[0] + ".json"
+            )
 
-        self.raw_context_fname = os.path.join(path, "reports", raw_context_fname)
+            self.raw_context_fname = os.path.join(path, "reports", raw_context_fname)
         self.temperature = temperature
         self.utility_prompt = utility_prompt
         self.state_config = state_config
         self.action_config = action_config
         self.preference_config = preference_config
-        if agent_name not in ["farmer", "trader"]:
-            raise ValueError("Agent name must be either farmer or trader.")
+        if agent_name not in ["farmer", "trader", "grid"]:
+            raise ValueError("Agent name must be farmer, trader, or grid.")
         self.agent_name = agent_name  # farmer or trader
 
     def cache_context(
@@ -267,6 +278,8 @@ class DeLLMaAgent:
                 format_instruction += f"""You should include information on the expected yield and price of each fruit, as well as factors that affect them."""
             elif self.product == "stock":
                 format_instruction += f"""You should include information on the expected price of each stock, as well as factors that affect them."""
+            elif self.product == "grid":
+                format_instruction += """You should relate your reasoning to the solver tabulated max|Δf|, max|ROCOF|, stability flags, and the stated goal of informative, safe probing for M and K identification."""
             else:
                 raise NotImplementedError
             return format_query(
@@ -284,6 +297,8 @@ class DeLLMaAgent:
                     format_instruction += f"""You should include information on the expected yield and price of each fruit, as well as factors that affect them."""
                 elif self.product == "stock":
                     format_instruction += f"""You should include information on the expected price of each stock, as well as factors that affect them."""
+                elif self.product == "grid":
+                    format_instruction += """You should relate comparisons to solver-tabulated probe features (frequency excursion, ROCOF, stability)."""
                 else:
                     raise NotImplementedError
             elif "pairwise" in pref_enum_mode:
@@ -295,6 +310,8 @@ class DeLLMaAgent:
                     format_instruction += f"""You should include information on the expected yield and price of each fruit, as well as factors that affect them."""
                 elif self.product == "stock":
                     format_instruction += f"""You should include information on the expected price of each stock, as well as factors that affect them."""
+                elif self.product == "grid":
+                    format_instruction += """You should relate pairwise preferences to solver-tabulated probe features (frequency excursion, ROCOF, stability)."""
                 else:
                     raise NotImplementedError
         if "minibatch" in pref_enum_mode:

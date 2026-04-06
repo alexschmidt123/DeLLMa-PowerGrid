@@ -2,30 +2,30 @@
 
 [Project Website](https://DeLLMa.github.io) | [Implementation](https://github.com/DeLLMa/DeLLMa/)
 
-Setup the environment by first downloading this repository and then running:
+Setup the environment by first downloading this repository, then install dependencies (for example inside a Conda env you create yourself—do not use `python -m venv`):
 
 ```
-pip install -e .
+pip install -r requirements.txt
 ```
 
-Reproduce DeLLMa results by running
+## Domains (pick one to test or run)
 
-```
-bash ./results.sh
-```
+DeLLMa uses the same entrypoint for every domain. Choose which scenario you want with `--agent_name`:
+
+| `--agent_name` | Setting |
+|----------------|---------|
+| `farmer` | Agriculture / crop choice (USDA-style context) |
+| `trader` | Stocks |
+| `grid` | Power grid (IEEE-14–style probing) |
+
+There is no separate workflow for power grid: it is a third option alongside agriculture and stocks. Swap `agent_name` to run baselines, rank-based DeLLMa, or other modes on whichever domain you care about.
 
 ## Baselines
 
-* Query GPT-4 for baseline methods. `[AGENT]` can be chosen from `{farmer, trader}`, and `[BASELINE]` can be chosen from `{zero-shot, cot, self-consistency}`
+* Query GPT-4 for baseline methods. `[AGENT]` is one of `{farmer, trader, grid}`. `[BASELINE]` is one of `{zero-shot, cot, self-consistency}`.
 
 ```
 python main.py --agent_name [AGENT] --dellma_mode [BASELINE] --results_path PATH/TO/RESULT
-```
-
-* Evaluate performance of baseline methods.
-
-```
-python evalute_dellma.py --agent_name [AGENT] --pref_enum_mode [BASELINE] --results_path PATH/TO/RESULT
 ```
 
 ## DeLLMa Agents
@@ -36,22 +36,8 @@ python evalute_dellma.py --agent_name [AGENT] --pref_enum_mode [BASELINE] --resu
 python main.py --agent_name [AGENT] --dellma_mode rank --sample_size [SIZE] --results_path PATH/TO/RESULT
 ```
 
-* Query GPT-4 for DeLLMa-{Pairs, Top1}. Here, `[SIZE]` denotes the **per action sample size**. We use 64 for our best performing agent and ablate from 4 to 64 in our ablation studies. `[PCT]` denotes the proportions shared between minibatches. For `farmer`, we use 0.25 and for `trader` we use 0.5. In our ablation studies we study values from 0, 0.25, 0.5, 0.75.
+* Query GPT-4 for DeLLMa-{Pairs, Top1}. Here, `[SIZE]` denotes the **per action sample size**. We use 64 for our best performing agent and ablate from 4 to 64 in our ablation studies. `[PCT]` denotes the proportions shared between minibatches. For example, we use overlap `0.25` for `farmer` and `0.5` for `trader` in the paper; you can set `--overlap_pct` for any agent.
 
 ```
 python main.py --agent_name [AGENT] --dellma_mode rank-minibatch --sample_size [SIZE] --overlap_pct [PCT] --results_path PATH/TO/RESULT
-```
-
-* Evaluate DeLLMa agents. `[DeLLMa]` can be chosen from `{rank, rank-minibatch}`. `[ALPHA]` controls the regularization strength when optimizing the Bradley-Terry Model with the ILSR algorithm, `[SOFTMAX]` governs how we normalize the utility function after the ILSR procedure. Choices from `full` (apply softmax to the complete utility vector) and `action` (first group all state-action pairs by action, then softmax). `[TEMP]` temperature scaling for the softmax.
-
-```
-python evaluate_dellma.py    \
-    --agent_name [AGENT]     \
-    --pref_enum_mode [DeLLMa]  \
-    --sample_size [SIZE]     \
-    --overlap_pct [PCT]      \
-    --alpha [ALPHA]          \
-    --softmax_mode [SOFTMAX] \
-    --temperature [TEMP]     \
-    --results_path PATH/TO/RESULT
 ```

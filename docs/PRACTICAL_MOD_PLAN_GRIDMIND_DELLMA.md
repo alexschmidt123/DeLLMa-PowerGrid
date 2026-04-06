@@ -74,9 +74,9 @@ Today `DeLLMaAgent` only allows `agent_name in ["farmer", "trader"]`.
 
 **Preferred minimal change:** add `"grid"` to that list so `GridAgent(..., agent_name="grid")` works. **Do not** refactor the rest of the base class.
 
-**Directory layout:** The base constructor creates `path/reports/summary/` if missing. Point `path=` to e.g. `data/powergrid/` and add a small `reports/summary/` (and optional `reports/grid_context.txt` raw file) so behavior matches farmer/stock **without** changing `agent.py` directory logic.
+**Directory layout:** `GridAgent` uses `path=data/powergrid/simulation/pandapower/` with `data_layout="flat"`. Under `data/powergrid/` only **`authoritative/`** and **`simulation/`**; under **`simulation/`** only **`pandapower/`** and **`matlab_simulink/`**. Farmer still uses `path/reports/...` (default `data_layout="reports"`).
 
-**Optional later:** only if you need special casing for grid paths, add a tiny branch in `__init__`—avoid unless necessary.
+**Optional:** other agents unchanged; only grid passes the flat layout flag.
 
 **Belief cache:** `cache_state_beliefs` / `load_state_beliefs` already use `cache/{agent_name}_states.json` when there is no `source_year` — use `agent_name="grid"` → `cache/grid_states.json`.
 
@@ -204,8 +204,8 @@ Use this as a **ticket list**. Order matters; each milestone has a clear **done*
 
 | # | Task | Done when |
 |---|------|-----------|
-| B1 | Create `data/powergrid/reports/summary/` (base class expects this under `path`). | Dirs exist. |
-| B2 | Add `data/powergrid/reports/grid_context_stub.txt` (one paragraph describing case) **or** generate text only from tools. | `raw_context_fname` has a target for `DeLLMaAgent` paths. |
+| B1 | Create `data/powergrid/simulation/pandapower/summary/` (grid `path` is `simulation/pandapower/`). | Dirs exist. |
+| B2 | Add `data/powergrid/simulation/pandapower/grid_baseline.txt` stub **or** generate text only from tools. | `raw_context_fname` resolves under `path/`. |
 | B3 | Author `cache/grid_states.json`: 3–5 discrete state factors, verbal labels per value (same schema as `cache/farmer_2021_states.json`). | Keys match `StateConfig.states` you will set in code. |
 
 ---
