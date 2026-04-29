@@ -1,0 +1,14 @@
+# --- API / configuration ---
+# python-dotenv: load DeLLMa-main/.env (OPENAI_API_KEY). Manual fallback exists in code if missing.
+python-dotenv>=1.0.1,<2
+# openai: >=1.56 avoids httpx 0.28+ error: Client.__init__() got an unexpected keyword argument 'proxies'
+openai>=1.56.0,<2
+
+choix==0.3.5
+matplotlib==3.8.0
+numpy==1.26.3
+pandas==2.2.0
+PyYAML==6.0.1
+scipy==1.12.0
+scikit-learn==1.4.2
+tqdm==4.65.0

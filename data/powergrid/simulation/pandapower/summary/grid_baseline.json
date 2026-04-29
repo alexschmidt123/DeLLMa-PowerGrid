@@ -1,4 +1,0 @@
-{
-  "domain": "powergrid",
-  "note": "Context text is built deterministically in prepare_context(); see results logs for traces."
-}

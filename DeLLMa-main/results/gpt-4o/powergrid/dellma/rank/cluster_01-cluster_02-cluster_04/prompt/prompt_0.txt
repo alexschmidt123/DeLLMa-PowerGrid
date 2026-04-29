@@ -1,0 +1,147 @@
+Below are the microgrid regimes I am considering: cluster_01, cluster_02, cluster_04. Each regime is summarized using **only** its dedicated file `cluster_XX.csv` under the powergrid data folder (one file per regime). I would like to know which single regime I should commit to for the next operating interval, given a budget of 10000 budget units. The objective is to improve expected **operational stability** using only the information shown (outcome labels are **muted** in this prompt; used only for offline evaluation).
+
+=== cluster_01 — microgrid regime 1 (cluster_01) ===
+Number of scenarios in this regime sample: 1378
+Aggregated features (tau — participant reaction times):
+    mean tau1: 5.798158 (std 2.586171)
+    mean tau2: 5.338154 (std 2.700044)
+    mean tau3: 5.265888 (std 2.703760)
+    mean tau4: 2.555868 (std 1.365064)
+Aggregated features (p — power-related node values):
+    mean p1: 4.617258 (std 0.387227)
+    mean p2: -1.506271 (std 0.335834)
+    mean p3: -1.542339 (std 0.318336)
+    mean p4: -1.568648 (std 0.310057)
+Aggregated features (g — pricing / elasticity coefficients):
+    mean g1: 0.554164 (std 0.274388)
+    mean g2: 0.525571 (std 0.275117)
+    mean g3: 0.553298 (std 0.270543)
+    mean g4: 0.519803 (std 0.276749)
+
+Example scenarios (most recent rows in this regime file; not time-series):
+(outcome / label columns are omitted)
+    tau1     tau2     tau3     tau4       p1        p2        p3        p4       g1       g2       g3       g4
+0.737811 8.233679 4.200900 4.163472 4.407164 -1.257483 -1.198625 -1.951055 0.950006 0.466142 0.997746 0.260704
+6.529172 1.375864 0.653113 0.969795 5.223769 -1.828670 -1.445435 -1.949664 0.404589 0.965439 0.290291 0.404649
+5.485364 3.096149 8.925530 2.090592 4.365430 -1.888132 -1.574179 -0.903119 0.319058 0.197309 0.091890 0.126587
+5.754191 3.032743 5.084803 4.633624 5.199250 -1.717030 -1.713212 -1.769009 0.157284 0.975921 0.511555 0.696591
+2.364034 2.842030 8.776391 1.008906 4.299976 -1.380719 -0.943884 -1.975373 0.487838 0.986505 0.149286 0.145984
+
+=== cluster_02 — microgrid regime 2 (cluster_02) ===
+Number of scenarios in this regime sample: 1361
+Aggregated features (tau — participant reaction times):
+    mean tau1: 3.077791 (std 1.797808)
+    mean tau2: 5.385954 (std 2.713693)
+    mean tau3: 5.058290 (std 2.743463)
+    mean tau4: 5.199694 (std 2.589725)
+Aggregated features (p — power-related node values):
+    mean p1: 3.710106 (std 0.395992)
+    mean p2: -1.623378 (std 0.239804)
+    mean p3: -0.885019 (std 0.263516)
+    mean p4: -1.201708 (std 0.372704)
+Aggregated features (g — pricing / elasticity coefficients):
+    mean g1: 0.461467 (std 0.267394)
+    mean g2: 0.469071 (std 0.272251)
+    mean g3: 0.539034 (std 0.270392)
+    mean g4: 0.489923 (std 0.271350)
+
+Example scenarios (most recent rows in this regime file; not time-series):
+(outcome / label columns are omitted)
+    tau1     tau2     tau3     tau4       p1        p2        p3        p4       g1       g2       g3       g4
+5.984990 7.833828 4.670350 8.941526 3.562268 -1.505071 -0.891233 -1.165964 0.379690 0.054542 0.230356 0.501272
+1.482214 3.121273 5.220920 1.609288 4.394557 -1.924542 -0.881996 -1.588019 0.097309 0.096599 0.383334 0.988509
+1.976306 6.894304 9.347806 5.763746 3.403860 -1.880294 -0.589551 -0.934015 0.138940 0.862088 0.424148 0.573791
+2.042954 8.514335 8.173809 5.466635 3.783797 -1.639912 -0.662469 -1.481417 0.154129 0.944486 0.053225 0.499109
+3.392299 1.274827 2.954947 6.894759 4.349512 -1.663661 -0.952437 -1.733414 0.502079 0.567242 0.285880 0.366120
+
+=== cluster_04 — microgrid regime 4 (cluster_04) ===
+Number of scenarios in this regime sample: 1554
+Aggregated features (tau — participant reaction times):
+    mean tau1: 6.187258 (std 2.543463)
+    mean tau2: 5.675607 (std 2.713679)
+    mean tau3: 5.466335 (std 2.740950)
+    mean tau4: 5.571709 (std 2.660386)
+Aggregated features (p — power-related node values):
+    mean p1: 3.551820 (std 0.380095)
+    mean p2: -0.919845 (std 0.282198)
+    mean p3: -0.969497 (std 0.297426)
+    mean p4: -1.662478 (std 0.209313)
+Aggregated features (g — pricing / elasticity coefficients):
+    mean g1: 0.558368 (std 0.267380)
+    mean g2: 0.544963 (std 0.274924)
+    mean g3: 0.504704 (std 0.281012)
+    mean g4: 0.508326 (std 0.276773)
+
+Example scenarios (most recent rows in this regime file; not time-series):
+(outcome / label columns are omitted)
+    tau1     tau2     tau3     tau4       p1        p2        p3        p4       g1       g2       g3       g4
+9.694989 8.393842 4.536673 5.012365 3.988816 -0.837072 -1.525764 -1.625981 0.538364 0.273122 0.212663 0.413255
+8.632397 4.239094 1.240248 9.246927 4.092402 -0.868173 -1.439817 -1.784412 0.739222 0.969041 0.704891 0.795726
+2.501787 3.087194 7.493896 2.177944 3.817471 -0.958986 -1.044281 -1.814205 0.503049 0.107808 0.534358 0.357840
+3.871136 7.371163 2.579495 1.540674 3.492453 -0.635868 -1.256279 -1.600306 0.819761 0.830057 0.566187 0.379589
+0.998988 9.924916 8.926563 2.885941 3.660232 -1.103521 -1.105641 -1.451070 0.717660 0.954919 0.491107 0.692023
+
+
+
+I'm a grid operator planning the next operating move. I would like to prioritize **operational stability** and secure operation using '10000' budget units. Use **only** the **τ / p / g** summaries and scenario rows below; **outcome / label columns are withheld** from this prompt (they exist only for offline evaluation).
+
+Below are the actions I can take:
+Action 1. cluster_01: 10000 budget units
+Action 2. cluster_02: 10000 budget units
+Action 3. cluster_04: 10000 budget units
+
+I would like to adopt a decision making under uncertainty framework to make my decision. The goal of you, the decision maker, is to choose an optimal action, while accounting for uncertainty in the unknown state. Previously, you have already provided a forecast of future state variables relevant to grid operating decisions. The state is a vector of 14 elements, each of which is a random variable. The state variables (and their most probable values) are enumerated below:
+- aggregate load forecast error: {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- renewable generation uncertainty: {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- contingency and equipment stress: {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- market and reserve pricing: {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- regulatory / operational limit: {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- local overload risk for microgrid regime 1 (cluster_01): {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- response margin for microgrid regime 1 (cluster_01): {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- stability outlook for microgrid regime 1 (cluster_01): {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- local overload risk for microgrid regime 2 (cluster_02): {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- response margin for microgrid regime 2 (cluster_02): {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- stability outlook for microgrid regime 2 (cluster_02): {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- local overload risk for microgrid regime 4 (cluster_04): {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- response margin for microgrid regime 4 (cluster_04): {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- stability outlook for microgrid regime 4 (cluster_04): {'low': 'somewhat unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+
+Below, I have sampled a set of state-action pairs, wherein states are sampled from the state belief distribution you provided and actions are sampled uniformly from the action space. I would like to construct a utility function from your comparisons of state-action pairs
+
+- State-Action Pair 1. State: aggregate load forecast error: high, renewable generation uncertainty: high, contingency and equipment stress: low, market and reserve pricing: high, regulatory / operational limit: high, local overload risk for microgrid regime 1 (cluster_01): moderate, response margin for microgrid regime 1 (cluster_01): low, stability outlook for microgrid regime 1 (cluster_01): low, local overload risk for microgrid regime 2 (cluster_02): moderate, response margin for microgrid regime 2 (cluster_02): moderate, stability outlook for microgrid regime 2 (cluster_02): high, local overload risk for microgrid regime 4 (cluster_04): low, response margin for microgrid regime 4 (cluster_04): high, stability outlook for microgrid regime 4 (cluster_04): high; Action 2. cluster_02: 10000 budget units
+
+- State-Action Pair 2. State: aggregate load forecast error: moderate, renewable generation uncertainty: low, contingency and equipment stress: low, market and reserve pricing: low, regulatory / operational limit: low, local overload risk for microgrid regime 1 (cluster_01): low, response margin for microgrid regime 1 (cluster_01): moderate, stability outlook for microgrid regime 1 (cluster_01): moderate, local overload risk for microgrid regime 2 (cluster_02): moderate, response margin for microgrid regime 2 (cluster_02): high, stability outlook for microgrid regime 2 (cluster_02): high, local overload risk for microgrid regime 4 (cluster_04): moderate, response margin for microgrid regime 4 (cluster_04): high, stability outlook for microgrid regime 4 (cluster_04): moderate; Action 2. cluster_02: 10000 budget units
+
+- State-Action Pair 3. State: aggregate load forecast error: high, renewable generation uncertainty: low, contingency and equipment stress: low, market and reserve pricing: moderate, regulatory / operational limit: low, local overload risk for microgrid regime 1 (cluster_01): high, response margin for microgrid regime 1 (cluster_01): high, stability outlook for microgrid regime 1 (cluster_01): low, local overload risk for microgrid regime 2 (cluster_02): moderate, response margin for microgrid regime 2 (cluster_02): high, stability outlook for microgrid regime 2 (cluster_02): high, local overload risk for microgrid regime 4 (cluster_04): moderate, response margin for microgrid regime 4 (cluster_04): moderate, stability outlook for microgrid regime 4 (cluster_04): low; Action 3. cluster_04: 10000 budget units
+
+- State-Action Pair 4. State: aggregate load forecast error: high, renewable generation uncertainty: high, contingency and equipment stress: low, market and reserve pricing: low, regulatory / operational limit: moderate, local overload risk for microgrid regime 1 (cluster_01): high, response margin for microgrid regime 1 (cluster_01): low, stability outlook for microgrid regime 1 (cluster_01): moderate, local overload risk for microgrid regime 2 (cluster_02): high, response margin for microgrid regime 2 (cluster_02): high, stability outlook for microgrid regime 2 (cluster_02): high, local overload risk for microgrid regime 4 (cluster_04): high, response margin for microgrid regime 4 (cluster_04): low, stability outlook for microgrid regime 4 (cluster_04): high; Action 1. cluster_01: 10000 budget units
+
+- State-Action Pair 5. State: aggregate load forecast error: moderate, renewable generation uncertainty: high, contingency and equipment stress: moderate, market and reserve pricing: low, regulatory / operational limit: moderate, local overload risk for microgrid regime 1 (cluster_01): low, response margin for microgrid regime 1 (cluster_01): moderate, stability outlook for microgrid regime 1 (cluster_01): low, local overload risk for microgrid regime 2 (cluster_02): moderate, response margin for microgrid regime 2 (cluster_02): high, stability outlook for microgrid regime 2 (cluster_02): low, local overload risk for microgrid regime 4 (cluster_04): low, response margin for microgrid regime 4 (cluster_04): high, stability outlook for microgrid regime 4 (cluster_04): high; Action 3. cluster_04: 10000 budget units
+
+- State-Action Pair 6. State: aggregate load forecast error: low, renewable generation uncertainty: moderate, contingency and equipment stress: high, market and reserve pricing: low, regulatory / operational limit: moderate, local overload risk for microgrid regime 1 (cluster_01): moderate, response margin for microgrid regime 1 (cluster_01): moderate, stability outlook for microgrid regime 1 (cluster_01): high, local overload risk for microgrid regime 2 (cluster_02): low, response margin for microgrid regime 2 (cluster_02): high, stability outlook for microgrid regime 2 (cluster_02): high, local overload risk for microgrid regime 4 (cluster_04): low, response margin for microgrid regime 4 (cluster_04): moderate, stability outlook for microgrid regime 4 (cluster_04): moderate; Action 1. cluster_01: 10000 budget units
+
+- State-Action Pair 7. State: aggregate load forecast error: high, renewable generation uncertainty: low, contingency and equipment stress: low, market and reserve pricing: high, regulatory / operational limit: moderate, local overload risk for microgrid regime 1 (cluster_01): high, response margin for microgrid regime 1 (cluster_01): high, stability outlook for microgrid regime 1 (cluster_01): low, local overload risk for microgrid regime 2 (cluster_02): high, response margin for microgrid regime 2 (cluster_02): moderate, stability outlook for microgrid regime 2 (cluster_02): high, local overload risk for microgrid regime 4 (cluster_04): moderate, response margin for microgrid regime 4 (cluster_04): high, stability outlook for microgrid regime 4 (cluster_04): high; Action 3. cluster_04: 10000 budget units
+
+- State-Action Pair 8. State: aggregate load forecast error: moderate, renewable generation uncertainty: low, contingency and equipment stress: low, market and reserve pricing: moderate, regulatory / operational limit: high, local overload risk for microgrid regime 1 (cluster_01): high, response margin for microgrid regime 1 (cluster_01): low, stability outlook for microgrid regime 1 (cluster_01): moderate, local overload risk for microgrid regime 2 (cluster_02): moderate, response margin for microgrid regime 2 (cluster_02): moderate, stability outlook for microgrid regime 2 (cluster_02): moderate, local overload risk for microgrid regime 4 (cluster_04): high, response margin for microgrid regime 4 (cluster_04): moderate, stability outlook for microgrid regime 4 (cluster_04): moderate; Action 2. cluster_02: 10000 budget units
+
+- State-Action Pair 9. State: aggregate load forecast error: moderate, renewable generation uncertainty: moderate, contingency and equipment stress: moderate, market and reserve pricing: low, regulatory / operational limit: high, local overload risk for microgrid regime 1 (cluster_01): high, response margin for microgrid regime 1 (cluster_01): high, stability outlook for microgrid regime 1 (cluster_01): low, local overload risk for microgrid regime 2 (cluster_02): moderate, response margin for microgrid regime 2 (cluster_02): low, stability outlook for microgrid regime 2 (cluster_02): high, local overload risk for microgrid regime 4 (cluster_04): moderate, response margin for microgrid regime 4 (cluster_04): high, stability outlook for microgrid regime 4 (cluster_04): moderate; Action 3. cluster_04: 10000 budget units
+
+- State-Action Pair 10. State: aggregate load forecast error: moderate, renewable generation uncertainty: low, contingency and equipment stress: moderate, market and reserve pricing: low, regulatory / operational limit: low, local overload risk for microgrid regime 1 (cluster_01): moderate, response margin for microgrid regime 1 (cluster_01): high, stability outlook for microgrid regime 1 (cluster_01): high, local overload risk for microgrid regime 2 (cluster_02): moderate, response margin for microgrid regime 2 (cluster_02): moderate, stability outlook for microgrid regime 2 (cluster_02): moderate, local overload risk for microgrid regime 4 (cluster_04): moderate, response margin for microgrid regime 4 (cluster_04): moderate, stability outlook for microgrid regime 4 (cluster_04): high; Action 2. cluster_02: 10000 budget units
+
+- State-Action Pair 11. State: aggregate load forecast error: low, renewable generation uncertainty: low, contingency and equipment stress: low, market and reserve pricing: moderate, regulatory / operational limit: moderate, local overload risk for microgrid regime 1 (cluster_01): high, response margin for microgrid regime 1 (cluster_01): moderate, stability outlook for microgrid regime 1 (cluster_01): low, local overload risk for microgrid regime 2 (cluster_02): high, response margin for microgrid regime 2 (cluster_02): moderate, stability outlook for microgrid regime 2 (cluster_02): moderate, local overload risk for microgrid regime 4 (cluster_04): high, response margin for microgrid regime 4 (cluster_04): moderate, stability outlook for microgrid regime 4 (cluster_04): low; Action 1. cluster_01: 10000 budget units
+
+- State-Action Pair 12. State: aggregate load forecast error: high, renewable generation uncertainty: high, contingency and equipment stress: moderate, market and reserve pricing: moderate, regulatory / operational limit: high, local overload risk for microgrid regime 1 (cluster_01): high, response margin for microgrid regime 1 (cluster_01): moderate, stability outlook for microgrid regime 1 (cluster_01): moderate, local overload risk for microgrid regime 2 (cluster_02): moderate, response margin for microgrid regime 2 (cluster_02): low, stability outlook for microgrid regime 2 (cluster_02): moderate, local overload risk for microgrid regime 4 (cluster_04): high, response margin for microgrid regime 4 (cluster_04): moderate, stability outlook for microgrid regime 4 (cluster_04): moderate; Action 1. cluster_01: 10000 budget units
+
+- State-Action Pair 13. State: aggregate load forecast error: low, renewable generation uncertainty: high, contingency and equipment stress: moderate, market and reserve pricing: low, regulatory / operational limit: high, local overload risk for microgrid regime 1 (cluster_01): moderate, response margin for microgrid regime 1 (cluster_01): low, stability outlook for microgrid regime 1 (cluster_01): high, local overload risk for microgrid regime 2 (cluster_02): moderate, response margin for microgrid regime 2 (cluster_02): low, stability outlook for microgrid regime 2 (cluster_02): high, local overload risk for microgrid regime 4 (cluster_04): low, response margin for microgrid regime 4 (cluster_04): high, stability outlook for microgrid regime 4 (cluster_04): moderate; Action 1. cluster_01: 10000 budget units
+
+- State-Action Pair 14. State: aggregate load forecast error: moderate, renewable generation uncertainty: high, contingency and equipment stress: high, market and reserve pricing: moderate, regulatory / operational limit: low, local overload risk for microgrid regime 1 (cluster_01): moderate, response margin for microgrid regime 1 (cluster_01): moderate, stability outlook for microgrid regime 1 (cluster_01): low, local overload risk for microgrid regime 2 (cluster_02): moderate, response margin for microgrid regime 2 (cluster_02): high, stability outlook for microgrid regime 2 (cluster_02): high, local overload risk for microgrid regime 4 (cluster_04): high, response margin for microgrid regime 4 (cluster_04): moderate, stability outlook for microgrid regime 4 (cluster_04): low; Action 1. cluster_01: 10000 budget units
+
+- State-Action Pair 15. State: aggregate load forecast error: low, renewable generation uncertainty: high, contingency and equipment stress: moderate, market and reserve pricing: low, regulatory / operational limit: moderate, local overload risk for microgrid regime 1 (cluster_01): low, response margin for microgrid regime 1 (cluster_01): high, stability outlook for microgrid regime 1 (cluster_01): high, local overload risk for microgrid regime 2 (cluster_02): moderate, response margin for microgrid regime 2 (cluster_02): moderate, stability outlook for microgrid regime 2 (cluster_02): low, local overload risk for microgrid regime 4 (cluster_04): high, response margin for microgrid regime 4 (cluster_04): high, stability outlook for microgrid regime 4 (cluster_04): moderate; Action 1. cluster_01: 10000 budget units
+
+- State-Action Pair 16. State: aggregate load forecast error: moderate, renewable generation uncertainty: moderate, contingency and equipment stress: moderate, market and reserve pricing: moderate, regulatory / operational limit: high, local overload risk for microgrid regime 1 (cluster_01): high, response margin for microgrid regime 1 (cluster_01): moderate, stability outlook for microgrid regime 1 (cluster_01): moderate, local overload risk for microgrid regime 2 (cluster_02): moderate, response margin for microgrid regime 2 (cluster_02): moderate, stability outlook for microgrid regime 2 (cluster_02): moderate, local overload risk for microgrid regime 4 (cluster_04): moderate, response margin for microgrid regime 4 (cluster_04): low, stability outlook for microgrid regime 4 (cluster_04): low; Action 2. cluster_02: 10000 budget units
+
+
+You should format your response as a JSON object. The JSON object should contain the following keys:
+- decision: a string that describes the state-action pair you recommend the powergrid to take. The output format should be the same as the format of the state-action pairs listed above, e.g. State-Action Pair 5.
+- rank: a list of integers that ranks the state-action pairs in decreasing rank of preference. For example, if you think the first state-action pair is the most preferred, the second state-action pair is the second most preferred, and so on. For example, [1, 2, 3, 4, 5].
+- explanation: a string that describes, in detail, the reasoning behind your decision. You should explain how tau/p/g patterns support your ranking; outcome columns are muted in this prompt.

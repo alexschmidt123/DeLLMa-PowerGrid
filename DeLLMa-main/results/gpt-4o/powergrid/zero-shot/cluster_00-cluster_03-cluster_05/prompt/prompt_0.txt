@@ -1,0 +1,98 @@
+Below are the microgrid regimes I am considering: cluster_00, cluster_03, cluster_05. Each regime is summarized using **only** its dedicated file `cluster_XX.csv` under the powergrid data folder (one file per regime). I would like to know which single regime I should commit to for the next operating interval, given a budget of 10000 budget units. The objective is to improve expected **operational stability** using only the information shown (outcome labels are **muted** in this prompt; used only for offline evaluation).
+
+=== cluster_00 — microgrid regime 0 (cluster_00) ===
+Number of scenarios in this regime sample: 1421
+Aggregated features (tau — participant reaction times):
+    mean tau1: 4.045315 (std 2.452331)
+    mean tau2: 4.986538 (std 2.735611)
+    mean tau3: 4.870646 (std 2.739474)
+    mean tau4: 4.955014 (std 2.652394)
+Aggregated features (p — power-related node values):
+    mean p1: 3.570957 (std 0.359660)
+    mean p2: -0.875533 (std 0.253665)
+    mean p3: -1.658331 (std 0.213072)
+    mean p4: -1.037092 (std 0.320343)
+Aggregated features (g — pricing / elasticity coefficients):
+    mean g1: 0.500574 (std 0.272968)
+    mean g2: 0.509095 (std 0.271292)
+    mean g3: 0.557841 (std 0.271420)
+    mean g4: 0.530069 (std 0.275112)
+
+Example scenarios (most recent rows in this regime file; not time-series):
+(outcome / label columns are omitted)
+    tau1     tau2     tau3     tau4       p1        p2        p3        p4       g1       g2       g3       g4
+5.137851 0.737253 5.725703 9.068354 3.499583 -1.186086 -1.326108 -0.987389 0.109199 0.399638 0.500972 0.992889
+0.619440 4.882592 3.360420 4.208011 3.981196 -1.438492 -1.837809 -0.704895 0.916919 0.966402 0.601258 0.143505
+4.141337 1.112868 8.400888 1.869624 3.671563 -0.699052 -1.513896 -1.458615 0.081811 0.094963 0.662959 0.169682
+9.929407 0.863541 8.161188 4.355424 3.406522 -0.579986 -1.774963 -1.051573 0.635858 0.837256 0.663527 0.539451
+2.930406 9.487627 2.376523 6.187797 3.343416 -0.658054 -1.449106 -1.236256 0.601709 0.779642 0.813512 0.608385
+
+=== cluster_03 — microgrid regime 3 (cluster_03) ===
+Number of scenarios in this regime sample: 1374
+Aggregated features (tau — participant reaction times):
+    mean tau1: 7.758891 (std 1.701513)
+    mean tau2: 5.154013 (std 2.741131)
+    mean tau3: 5.451898 (std 2.764120)
+    mean tau4: 5.490505 (std 2.633368)
+Aggregated features (p — power-related node values):
+    mean p1: 3.697970 (std 0.409565)
+    mean p2: -1.536791 (std 0.283236)
+    mean p3: -1.284518 (std 0.362338)
+    mean p4: -0.876661 (std 0.251228)
+Aggregated features (g — pricing / elasticity coefficients):
+    mean g1: 0.543528 (std 0.272612)
+    mean g2: 0.594580 (std 0.267356)
+    mean g3: 0.489406 (std 0.271971)
+    mean g4: 0.578560 (std 0.270078)
+
+Example scenarios (most recent rows in this regime file; not time-series):
+(outcome / label columns are omitted)
+    tau1     tau2     tau3     tau4       p1        p2        p3        p4       g1       g2       g3       g4
+7.558827 3.707235 3.657645 4.066914 3.150766 -1.202690 -1.210526 -0.737550 0.235867 0.095968 0.295953 0.850750
+8.009489 9.781312 0.716183 5.060484 3.930695 -1.968541 -1.175423 -0.786731 0.947934 0.591301 0.767288 0.282651
+6.877876 4.113820 9.356768 8.299753 4.056779 -1.897470 -1.590581 -0.568728 0.276567 0.845536 0.112440 0.822562
+7.313523 5.899631 9.380071 4.366344 3.883659 -1.847030 -1.363222 -0.673408 0.463072 0.583187 0.634002 0.285209
+6.530527 6.781790 4.349695 8.673138 3.492807 -1.390285 -1.532193 -0.570329 0.073056 0.505441 0.378761 0.942631
+
+=== cluster_05 — microgrid regime 5 (cluster_05) ===
+Number of scenarios in this regime sample: 1536
+Aggregated features (tau — participant reaction times):
+    mean tau1: 4.942385 (std 2.618080)
+    mean tau2: 5.189968 (std 2.735387)
+    mean tau3: 5.218987 (std 2.695153)
+    mean tau4: 5.237496 (std 2.713439)
+Aggregated features (p — power-related node values):
+    mean p1: 2.615067 (std 0.318910)
+    mean p2: -0.894176 (std 0.267617)
+    mean p3: -0.870619 (std 0.247972)
+    mean p4: -0.850272 (std 0.238738)
+Aggregated features (g — pricing / elasticity coefficients):
+    mean g1: 0.535936 (std 0.276371)
+    mean g2: 0.509559 (std 0.270337)
+    mean g3: 0.520846 (std 0.273091)
+    mean g4: 0.528556 (std 0.272278)
+
+Example scenarios (most recent rows in this regime file; not time-series):
+(outcome / label columns are omitted)
+    tau1     tau2     tau3     tau4       p1        p2        p3        p4       g1       g2       g3       g4
+6.756528 7.107648 6.038633 8.236088 1.980384 -0.799625 -0.642624 -0.538135 0.667311 0.545362 0.740026 0.420316
+6.038326 5.621908 5.099137 2.279340 3.013139 -1.347185 -0.585465 -1.080488 0.725119 0.409759 0.294961 0.214761
+3.176332 5.101491 8.134258 4.985496 3.031084 -0.957564 -1.102893 -0.970628 0.527206 0.774756 0.180754 0.209837
+3.114442 4.781072 2.427918 7.989509 2.673156 -0.918191 -0.652736 -1.102228 0.867950 0.888858 0.460587 0.965026
+9.631511 3.994398 2.757071 7.821347 2.514755 -0.966330 -0.649915 -0.898510 0.365246 0.587558 0.889118 0.818391
+
+
+
+I'm a grid operator planning the next operating move. I would like to prioritize **operational stability** and secure operation using '10000' budget units. Use **only** the **τ / p / g** summaries and scenario rows below; **outcome / label columns are withheld** from this prompt (they exist only for offline evaluation).
+
+Below are the actions I can take:
+Action 1. cluster_00: 10000 budget units
+Action 2. cluster_03: 10000 budget units
+Action 3. cluster_05: 10000 budget units
+
+
+
+I would like to know which action I should take based on the information provided above.
+You should format your response as a JSON object. The JSON object should contain the following keys:
+- decision: a string that describes the action you recommend the powergrid to take. The output format should be the same as the format of the actions listed above, e.g. Action 1. cluster_00: 10000 budget units
+- explanation: a string that describes, in detail, the reasoning behind your decision. You should justify expected stability using **only** τ / p / g summaries and scenario rows; outcome columns are muted in this prompt.

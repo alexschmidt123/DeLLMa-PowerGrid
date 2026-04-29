@@ -1,5 +1,0 @@
-Stub for DeLLMaAgent (raw_context_fname). Real numbers come from utils/data_utils.py and ieee14/ CSVs.
-
-This folder holds: IEEE-14 export, ieee14_metadata.json, eval_theta.json (optional), summary/grid_baseline.json, and this file.
-
-Sibling folder: ../matlab_simulink/ for MATLAB/Simulink validation outputs.

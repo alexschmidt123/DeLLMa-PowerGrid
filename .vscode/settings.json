@@ -1,11 +1,19 @@
 {
-  "python.condaPath": "/opt/homebrew/Caskroom/miniforge/base/bin/conda",
   "python.defaultInterpreterPath": "/opt/homebrew/Caskroom/miniforge/base/envs/dellma/bin/python",
   "python.terminal.activateEnvironment": true,
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/DeLLMa-main"
+  ],
   "terminal.integrated.env.osx": {
-    "PATH": "/opt/homebrew/Caskroom/miniforge/base/bin:${env:PATH}"
+    "PYTHONPATH": "${workspaceFolder}/DeLLMa-main"
   },
-  "python-envs.pythonProjects": [],
+  "terminal.integrated.env.linux": {
+    "PYTHONPATH": "${workspaceFolder}/DeLLMa-main"
+  },
+  "terminal.integrated.env.windows": {
+    "PYTHONPATH": "${workspaceFolder}\\DeLLMa-main"
+  },
   "python-envs.defaultEnvManager": "ms-python.python:conda",
-  "python-envs.defaultPackageManager": "ms-python.python:conda"
+  "python-envs.defaultPackageManager": "ms-python.python:conda",
+  "python-envs.pythonProjects": []
 }

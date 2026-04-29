@@ -1,0 +1,132 @@
+{
+    "aggregate load forecast error": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "renewable generation uncertainty": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "contingency and equipment stress": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "market and reserve pricing": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "regulatory / operational limit": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "local overload risk for microgrid regime 0 (cluster_00)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "response margin for microgrid regime 0 (cluster_00)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "stability outlook for microgrid regime 0 (cluster_00)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "local overload risk for microgrid regime 1 (cluster_01)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "response margin for microgrid regime 1 (cluster_01)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "stability outlook for microgrid regime 1 (cluster_01)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "local overload risk for microgrid regime 2 (cluster_02)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "response margin for microgrid regime 2 (cluster_02)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "stability outlook for microgrid regime 2 (cluster_02)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "local overload risk for microgrid regime 3 (cluster_03)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "response margin for microgrid regime 3 (cluster_03)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "stability outlook for microgrid regime 3 (cluster_03)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "local overload risk for microgrid regime 4 (cluster_04)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "response margin for microgrid regime 4 (cluster_04)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "stability outlook for microgrid regime 4 (cluster_04)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "local overload risk for microgrid regime 5 (cluster_05)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "response margin for microgrid regime 5 (cluster_05)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "stability outlook for microgrid regime 5 (cluster_05)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "local overload risk for microgrid regime 6 (cluster_06)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "response margin for microgrid regime 6 (cluster_06)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "stability outlook for microgrid regime 6 (cluster_06)": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    }
+}

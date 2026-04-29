@@ -1,0 +1,126 @@
+Below are the microgrid regimes I am considering: cluster_03, cluster_04, cluster_05, cluster_06. Each regime is summarized using **only** its dedicated file `cluster_XX.csv` under the powergrid data folder (one file per regime). I would like to know which single regime I should commit to for the next operating interval, given a budget of 10000 budget units. The objective is to improve expected **operational stability** using only the information shown (outcome labels are **muted** in this prompt; used only for offline evaluation).
+
+=== cluster_03 — microgrid regime 3 (cluster_03) ===
+Number of scenarios in this regime sample: 1374
+Aggregated features (tau — participant reaction times):
+    mean tau1: 7.758891 (std 1.701513)
+    mean tau2: 5.154013 (std 2.741131)
+    mean tau3: 5.451898 (std 2.764120)
+    mean tau4: 5.490505 (std 2.633368)
+Aggregated features (p — power-related node values):
+    mean p1: 3.697970 (std 0.409565)
+    mean p2: -1.536791 (std 0.283236)
+    mean p3: -1.284518 (std 0.362338)
+    mean p4: -0.876661 (std 0.251228)
+Aggregated features (g — pricing / elasticity coefficients):
+    mean g1: 0.543528 (std 0.272612)
+    mean g2: 0.594580 (std 0.267356)
+    mean g3: 0.489406 (std 0.271971)
+    mean g4: 0.578560 (std 0.270078)
+
+Example scenarios (most recent rows in this regime file; not time-series):
+(outcome / label columns are omitted)
+    tau1     tau2     tau3     tau4       p1        p2        p3        p4       g1       g2       g3       g4
+7.558827 3.707235 3.657645 4.066914 3.150766 -1.202690 -1.210526 -0.737550 0.235867 0.095968 0.295953 0.850750
+8.009489 9.781312 0.716183 5.060484 3.930695 -1.968541 -1.175423 -0.786731 0.947934 0.591301 0.767288 0.282651
+6.877876 4.113820 9.356768 8.299753 4.056779 -1.897470 -1.590581 -0.568728 0.276567 0.845536 0.112440 0.822562
+7.313523 5.899631 9.380071 4.366344 3.883659 -1.847030 -1.363222 -0.673408 0.463072 0.583187 0.634002 0.285209
+6.530527 6.781790 4.349695 8.673138 3.492807 -1.390285 -1.532193 -0.570329 0.073056 0.505441 0.378761 0.942631
+
+=== cluster_04 — microgrid regime 4 (cluster_04) ===
+Number of scenarios in this regime sample: 1554
+Aggregated features (tau — participant reaction times):
+    mean tau1: 6.187258 (std 2.543463)
+    mean tau2: 5.675607 (std 2.713679)
+    mean tau3: 5.466335 (std 2.740950)
+    mean tau4: 5.571709 (std 2.660386)
+Aggregated features (p — power-related node values):
+    mean p1: 3.551820 (std 0.380095)
+    mean p2: -0.919845 (std 0.282198)
+    mean p3: -0.969497 (std 0.297426)
+    mean p4: -1.662478 (std 0.209313)
+Aggregated features (g — pricing / elasticity coefficients):
+    mean g1: 0.558368 (std 0.267380)
+    mean g2: 0.544963 (std 0.274924)
+    mean g3: 0.504704 (std 0.281012)
+    mean g4: 0.508326 (std 0.276773)
+
+Example scenarios (most recent rows in this regime file; not time-series):
+(outcome / label columns are omitted)
+    tau1     tau2     tau3     tau4       p1        p2        p3        p4       g1       g2       g3       g4
+9.694989 8.393842 4.536673 5.012365 3.988816 -0.837072 -1.525764 -1.625981 0.538364 0.273122 0.212663 0.413255
+8.632397 4.239094 1.240248 9.246927 4.092402 -0.868173 -1.439817 -1.784412 0.739222 0.969041 0.704891 0.795726
+2.501787 3.087194 7.493896 2.177944 3.817471 -0.958986 -1.044281 -1.814205 0.503049 0.107808 0.534358 0.357840
+3.871136 7.371163 2.579495 1.540674 3.492453 -0.635868 -1.256279 -1.600306 0.819761 0.830057 0.566187 0.379589
+0.998988 9.924916 8.926563 2.885941 3.660232 -1.103521 -1.105641 -1.451070 0.717660 0.954919 0.491107 0.692023
+
+=== cluster_05 — microgrid regime 5 (cluster_05) ===
+Number of scenarios in this regime sample: 1536
+Aggregated features (tau — participant reaction times):
+    mean tau1: 4.942385 (std 2.618080)
+    mean tau2: 5.189968 (std 2.735387)
+    mean tau3: 5.218987 (std 2.695153)
+    mean tau4: 5.237496 (std 2.713439)
+Aggregated features (p — power-related node values):
+    mean p1: 2.615067 (std 0.318910)
+    mean p2: -0.894176 (std 0.267617)
+    mean p3: -0.870619 (std 0.247972)
+    mean p4: -0.850272 (std 0.238738)
+Aggregated features (g — pricing / elasticity coefficients):
+    mean g1: 0.535936 (std 0.276371)
+    mean g2: 0.509559 (std 0.270337)
+    mean g3: 0.520846 (std 0.273091)
+    mean g4: 0.528556 (std 0.272278)
+
+Example scenarios (most recent rows in this regime file; not time-series):
+(outcome / label columns are omitted)
+    tau1     tau2     tau3     tau4       p1        p2        p3        p4       g1       g2       g3       g4
+6.756528 7.107648 6.038633 8.236088 1.980384 -0.799625 -0.642624 -0.538135 0.667311 0.545362 0.740026 0.420316
+6.038326 5.621908 5.099137 2.279340 3.013139 -1.347185 -0.585465 -1.080488 0.725119 0.409759 0.294961 0.214761
+3.176332 5.101491 8.134258 4.985496 3.031084 -0.957564 -1.102893 -0.970628 0.527206 0.774756 0.180754 0.209837
+3.114442 4.781072 2.427918 7.989509 2.673156 -0.918191 -0.652736 -1.102228 0.867950 0.888858 0.460587 0.965026
+9.631511 3.994398 2.757071 7.821347 2.514755 -0.966330 -0.649915 -0.898510 0.365246 0.587558 0.889118 0.818391
+
+=== cluster_06 — microgrid regime 6 (cluster_06) ===
+Number of scenarios in this regime sample: 1376
+Aggregated features (tau — participant reaction times):
+    mean tau1: 4.873296 (std 2.596118)
+    mean tau2: 4.981528 (std 2.796891)
+    mean tau3: 5.404190 (std 2.766511)
+    mean tau4: 7.712894 (std 1.477275)
+Aggregated features (p — power-related node values):
+    mean p1: 4.648512 (std 0.385555)
+    mean p2: -1.494454 (std 0.349304)
+    mean p3: -1.602368 (std 0.286292)
+    mean p4: -1.551691 (std 0.309521)
+Aggregated features (g — pricing / elasticity coefficients):
+    mean g1: 0.515464 (std 0.276384)
+    mean g2: 0.521386 (std 0.273120)
+    mean g3: 0.511967 (std 0.273740)
+    mean g4: 0.521044 (std 0.269585)
+
+Example scenarios (most recent rows in this regime file; not time-series):
+(outcome / label columns are omitted)
+    tau1     tau2     tau3     tau4       p1        p2        p3        p4       g1       g2       g3       g4
+9.294575 6.015290 8.377983 7.950847 5.594737 -1.832162 -1.773395 -1.989180 0.187809 0.062131 0.803217 0.349701
+0.774183 9.961880 6.754754 8.033046 4.906420 -1.693269 -1.711863 -1.501288 0.448745 0.825047 0.097097 0.436177
+0.960580 3.984473 6.134353 9.755264 4.076419 -1.425252 -1.523594 -1.127572 0.381592 0.317501 0.840619 0.981701
+7.063097 3.897790 3.667961 7.953410 4.632592 -1.146609 -1.850362 -1.635621 0.537054 0.464419 0.565545 0.164245
+5.783299 4.726614 1.340273 8.617933 4.587533 -1.950574 -1.594137 -1.042822 0.445853 0.645680 0.406864 0.726180
+
+
+
+I'm a grid operator planning the next operating move. I would like to prioritize **operational stability** and secure operation using '10000' budget units. Use **only** the **τ / p / g** summaries and scenario rows below; **outcome / label columns are withheld** from this prompt (they exist only for offline evaluation).
+
+Below are the actions I can take:
+Action 1. cluster_03: 10000 budget units
+Action 2. cluster_04: 10000 budget units
+Action 3. cluster_05: 10000 budget units
+Action 4. cluster_06: 10000 budget units
+
+
+
+I would like to know which action I should take based on the information provided above.
+You should format your response as a JSON object. The JSON object should contain the following keys:
+- decision: a string that describes the action you recommend the powergrid to take. The output format should be the same as the format of the actions listed above, e.g. Action 1. cluster_03: 10000 budget units
+- explanation: a string that describes, in detail, the reasoning behind your decision. You should justify expected stability using **only** τ / p / g summaries and scenario rows; outcome columns are muted in this prompt.

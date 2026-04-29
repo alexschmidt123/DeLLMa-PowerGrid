@@ -1,0 +1,1 @@
+Placeholder: DeLLMa raw report path for the power-grid agent. Context for decisions is built from cluster_00.csv … cluster_06.csv only (k=7).
