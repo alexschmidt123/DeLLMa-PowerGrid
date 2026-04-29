@@ -1,0 +1,19 @@
+{
+  "F0_HZ": 60.0,
+  "MODEL_REL_PATH": "Fourteen_bus.mdl/Fourteen_bus.mdl",
+  "STOP_TIME_S": 10.0,
+  "SOLVER_NAME": "ode23tb",
+  "REL_TOL": 0.001,
+  "ABS_TOL": 1e-06,
+  "MAX_STEP_S": 0.02,
+  "MIN_STEP_S": 1e-09,
+  "SAVE_TIME": true,
+  "RETURN_WORKSPACE_OUTPUTS": true,
+  "SIGNAL_LOGGING": true,
+  "OUTPUT_CSV": "dataset.csv",
+  "LOG_OUTPORT1_BLOCKS": ["Bus 1 "],
+  "CSV_INCLUDE_VOLTAGE_COLUMNS": true,
+  "PREFERRED_LOG_SIGNAL": "",
+  "WORKSPACE_OVERRIDES": {},
+  "CSV_APPEND_METADATA_COLUMNS": true
+}
