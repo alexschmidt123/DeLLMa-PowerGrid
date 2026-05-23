@@ -28,6 +28,8 @@ from __future__ import annotations
 import os
 import logging
 from typing import Any, Dict, List, Optional
+from urllib.error import URLError
+from urllib.request import Request, urlopen
 
 from openai import OpenAI
 
@@ -109,10 +111,25 @@ def get_llm_client() -> Optional[OpenAI]:
     return _client
 
 
+def _vllm_server_reachable() -> bool:
+    """Probe the vLLM OpenAI-compatible /models endpoint."""
+    base_url = _env("VLLM_BASE_URL", "http://localhost:8000/v1").rstrip("/")
+    api_key = _env("VLLM_API_KEY", "token-abc123")
+    req = Request(
+        f"{base_url}/models",
+        headers={"Authorization": f"Bearer {api_key}"},
+    )
+    try:
+        with urlopen(req, timeout=3) as resp:
+            return resp.status == 200
+    except (URLError, OSError, ValueError):
+        return False
+
+
 def is_client_available() -> bool:
     """True when a usable LLM client can be constructed."""
     if _backend() == "vllm":
-        return True  # vLLM is assumed running if configured
+        return _vllm_server_reachable()
     return bool(_env("OPENAI_API_KEY"))
 
 

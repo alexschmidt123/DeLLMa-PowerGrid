@@ -1,14 +1,25 @@
+# SEIR data generation (../seir_sde_data_generation/) uses numpy, pandas, PyYAML,
+# matplotlib, and tqdm — all covered below.
+
 # --- API / configuration ---
 # python-dotenv: load DeLLMa-main/.env (OPENAI_API_KEY). Manual fallback exists in code if missing.
 python-dotenv>=1.0.1,<2
-# openai: >=1.56 avoids httpx 0.28+ error: Client.__init__() got an unexpected keyword argument 'proxies'
+# openai: keep in 1.x for compatibility with CUDA 12.6-compatible vLLM pin below.
 openai>=1.56.0,<2
+# local backend (optional): pin to CUDA 12.6-compatible line for lab 4090 driver.
+vllm==0.10.0
+# vLLM 0.10 runtime is not compatible with transformers 5.x tokenizer API.
+transformers>=4.53.2,<5
+tokenizers>=0.21.1,<0.22
+huggingface-hub>=0.33.0,<1
 
 choix==0.3.5
-matplotlib==3.8.0
-numpy==1.26.3
-pandas==2.2.0
+matplotlib>=3.9,<4
+numpy>=2.0,<2.3
+pandas>=2.2.2,<3
 PyYAML==6.0.1
-scipy==1.12.0
-scikit-learn==1.4.2
+# Keep protobuf <7 to avoid opentelemetry-proto conflict warnings in this env.
+protobuf>=5,<7
+scipy>=1.13,<2
+scikit-learn>=1.5,<2
 tqdm==4.65.0

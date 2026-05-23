@@ -1,0 +1,439 @@
+\documentclass[15pt]{extarticle}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[
+  paperwidth=13.333in,
+  paperheight=7.5in,
+  margin=0.55in
+]{geometry}
+
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{lmodern}
+
+% ---------- Colors ----------
+\definecolor{titleblue}{RGB}{20, 65, 120}
+\definecolor{boxgray}{RGB}{248, 248, 248}
+\definecolor{linegray}{RGB}{120, 120, 120}
+
+% ---------- Section style ----------
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{titleblue}}
+  {}
+  {0pt}
+  {}
+
+% ---------- Spacing ----------
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.20em}
+\setlength{\abovedisplayskip}{0.35em}
+\setlength{\belowdisplayskip}{0.35em}
+\setlist[itemize]{leftmargin=1.2em, itemsep=0.12em, topsep=0.08em}
+
+% ---------- Box style ----------
+\tcbset{
+  enhanced,
+  colback=boxgray,
+  colframe=linegray,
+  boxrule=0.7pt,
+  arc=2mm,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt
+}
+
+\begin{document}
+\large
+
+% ============================================================
+\newpage
+\section*{1. Decision Problem}
+
+\begin{tcolorbox}
+\textbf{Goal:} Allocate the first limited vaccine supply to \textbf{one} of 10 cities to maximize expected future infection-burden reduction.
+\end{tcolorbox}
+
+\vspace{0.12cm}
+
+\begin{minipage}[t]{0.47\textwidth}
+\textbf{Epidemic state for city \(i\):}
+\[
+X_i(t)=
+\begin{pmatrix}
+S_i(t)\\
+E_i(t)\\
+I_i(t)\\
+R_i(t)
+\end{pmatrix},
+\qquad i=1,\ldots,10.
+\]
+
+\textbf{Observed context:}
+\[
+C_i=\{I_i^0(t),R_i^0(t)\}_{t=1}^{30}.
+\]
+
+\textbf{Hidden future:}
+\[
+t=31,\ldots,60.
+\]
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.47\textwidth}
+\textbf{Action space:}
+\[
+A=\{a_1,a_2,\ldots,a_{10}\},
+\]
+\[
+a_i=\text{allocate vaccine to city }i.
+\]
+
+\textbf{Pre-intervention parameters:}
+\[
+\theta_i=(\beta_i,\sigma_i,\gamma_i).
+\]
+
+\[
+\beta_i=\text{infection rate},\quad
+\sigma_i=\text{progression rate},\quad
+\gamma_i=\text{recovery rate}.
+\]
+\end{minipage}
+
+\vspace{0.22cm}
+
+\begin{tcolorbox}
+This is a \textbf{decision-under-uncertainty} problem, not just a prediction problem:
+\[
+\text{choose }a_i
+\quad\text{to maximize expected vaccine benefit.}
+\]
+\end{tcolorbox}
+
+
+% ============================================================
+\newpage
+\section*{2. Pre-Intervention SEIR-SDE Model}
+
+\textbf{Deterministic SEIR drift:}
+\[
+S \rightarrow E \rightarrow I \rightarrow R.
+\]
+
+\vspace{0.10cm}
+
+\begin{minipage}[t]{0.47\textwidth}
+\[
+f_{S,i}= -\beta_i \frac{S_i I_i}{N_i},
+\]
+\[
+f_{E,i}= \beta_i \frac{S_i I_i}{N_i}-\sigma_i E_i.
+\]
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.47\textwidth}
+\[
+f_{I,i}= \sigma_i E_i-\gamma_i I_i,
+\]
+\[
+f_{R,i}= \gamma_i I_i.
+\]
+\end{minipage}
+
+\vspace{0.18cm}
+
+\textbf{Stochastic SEIR-SDE form:}
+\[
+\begin{pmatrix}
+dS_i & dE_i & dI_i & dR_i
+\end{pmatrix}
+=
+\begin{pmatrix}
+f_{S,i} & f_{E,i} & f_{I,i} & f_{R,i}
+\end{pmatrix}dt
++
+dW_i(t)g_i(t,x).
+\]
+
+\[
+dW_i(t)=
+\begin{pmatrix}
+dW_{1,i} & dW_{2,i} & dW_{3,i} & dW_{4,i}
+\end{pmatrix}.
+\]
+
+\vspace{0.08cm}
+
+\[
+g_i(t,x)=
+\begin{pmatrix}
+-\sqrt{\beta_i \frac{S_i I_i}{N_i}}
+& \sqrt{\beta_i \frac{S_i I_i}{N_i}}
+& 0
+& 0 \\[4pt]
+0
+& -\sqrt{\sigma_i E_i}
+& \sqrt{\sigma_i E_i}
+& 0 \\[4pt]
+0
+& 0
+& -\sqrt{\gamma_i I_i}
+& \sqrt{\gamma_i I_i} \\[4pt]
+0
+& 0
+& 0
+& 0
+\end{pmatrix}
+=
+\begin{pmatrix}
+g_{S,i} & g_{E,i} & g_{I,i} & g_{R,i}
+\end{pmatrix}.
+\]
+
+\begin{tcolorbox}
+The \(4\times4\) diffusion matrix is kept for consistency with the reference form. The fourth Wiener process does not create an additional epidemic transition because the fourth row is zero.
+\end{tcolorbox}
+
+
+% ============================================================
+\newpage
+\section*{3. Vaccine Counterfactual at Day 30}
+
+\textbf{For candidate action \(a_i\), vaccine is applied to city \(i\) at day 30.}
+
+\vspace{0.08cm}
+
+\[
+P_i=\min(VE\cdot Q,\;S_i^0(30)).
+\]
+
+\begin{tcolorbox}
+Here, \(VE\cdot Q\) is the effective number of susceptible individuals protected by the available vaccine supply.
+\end{tcolorbox}
+
+\vspace{0.15cm}
+
+\begin{minipage}[t]{0.47\textwidth}
+\textbf{State intervention}
+
+\[
+S_i^{V}(30^+)=S_i^0(30)-P_i,
+\]
+\[
+R_i^{V}(30^+)=R_i^0(30)+P_i.
+\]
+
+\[
+E_i^{V}(30^+)=E_i^0(30),
+\]
+\[
+I_i^{V}(30^+)=I_i^0(30).
+\]
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.47\textwidth}
+\textbf{Parameter intervention}
+
+\[
+\beta_i^{V}=(1-\eta_i)\beta_i,
+\qquad 0\leq \eta_i\leq 1.
+\]
+
+\[
+\sigma_i^{V}=\sigma_i,
+\qquad
+\gamma_i^{V}=\gamma_i.
+\]
+
+\[
+\theta_i^{V}=(\beta_i^{V},\sigma_i,\gamma_i).
+\]
+\end{minipage}
+
+\vspace{0.25cm}
+
+\begin{tcolorbox}
+Vaccination reduces future infection through two mechanisms:
+\[
+S_i^{V}(30^+)<S_i^0(30),
+\qquad
+\beta_i^{V}<\beta_i.
+\]
+It reduces the susceptible population and lowers the effective transmission rate.
+\end{tcolorbox}
+
+
+% ============================================================
+\newpage
+\section*{4. Post-Vaccine Transmission and Dynamics}
+
+\textbf{No-vaccine infection force:}
+\[
+\lambda_i^0(t)
+=
+\beta_i
+\frac{S_i^0(t)I_i^0(t)}{N_i}.
+\]
+
+\textbf{Vaccine-counterfactual infection force:}
+\[
+\lambda_i^{V}(t)
+=
+\beta_i^{V}
+\frac{S_i^{V}(t)I_i^{V}(t)}{N_i}.
+\]
+
+Since
+\[
+\beta_i^{V}=(1-\eta_i)\beta_i,
+\]
+we have
+\[
+\lambda_i^{V}(t)
+=
+(1-\eta_i)\beta_i
+\frac{S_i^{V}(t)I_i^{V}(t)}{N_i}.
+\]
+
+\vspace{0.12cm}
+
+\begin{tcolorbox}
+Vaccination changes the effective transmission process:
+\[
+\lambda_i^{V}(t)
+<
+\lambda_i^0(t)
+\]
+when \(\eta_i>0\) and \(S_i^{V}(t)<S_i^0(t)\).
+\end{tcolorbox}
+
+\vspace{0.14cm}
+
+\textbf{Post-vaccine drift terms:}
+\[
+f_{S,i}^{V}= -\beta_i^{V}\frac{S_i^{V}I_i^{V}}{N_i},
+\qquad
+f_{E,i}^{V}= \beta_i^{V}\frac{S_i^{V}I_i^{V}}{N_i}-\sigma_i E_i^{V},
+\]
+\[
+f_{I,i}^{V}= \sigma_i E_i^{V}-\gamma_i I_i^{V},
+\qquad
+f_{R,i}^{V}= \gamma_i I_i^{V}.
+\]
+
+\begin{tcolorbox}
+The intervention changes \(\beta_i\) into \(\beta_i^{V}\), but disease progression and recovery are unchanged:
+\[
+\sigma_i^{V}=\sigma_i,
+\qquad
+\gamma_i^{V}=\gamma_i.
+\]
+\end{tcolorbox}
+
+
+% ============================================================
+\newpage
+\section*{5. Decision Rule and Evaluation}
+
+\textbf{For each action \(a_i\), simulate two future trajectories from day 31 to day 60:}
+\[
+I_i^0(t)=\text{no-vaccine trajectory},
+\qquad
+I_i^V(t\mid a_i)=\text{vaccine-counterfactual trajectory}.
+\]
+
+\vspace{0.10cm}
+
+\begin{minipage}[t]{0.47\textwidth}
+\textbf{Future infection burdens}
+\[
+B_i^0=\sum_{t=31}^{60}I_i^0(t),
+\]
+\[
+B_i^V(a_i)=\sum_{t=31}^{60}I_i^V(t\mid a_i).
+\]
+
+\textbf{Expected utility}
+\[
+EU(a_i)=
+\mathbb{E}_{\theta_i\mid C_i}
+\left[
+B_i^0-B_i^V(a_i)
+\right].
+\]
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.47\textwidth}
+\textbf{Monte Carlo estimate}
+\[
+\widehat{EU}(a_i)=
+\frac{1}{M}
+\sum_{m=1}^{M}
+\left[
+B_{i,m}^0-B_{i,m}^{V}(a_i)
+\right].
+\]
+
+\textbf{Decision rule}
+\[
+\hat{a}
+=
+\arg\max_{a_i\in A}\widehat{EU}(a_i).
+\]
+
+\textbf{Ground-truth optimal action}
+\[
+a^*
+=
+\arg\max_{a_i\in A}U^{true}(a_i).
+\]
+\end{minipage}
+
+\vspace{0.18cm}
+
+\begin{tcolorbox}
+\[
+\text{Top-1 Accuracy}
+=
+\mathbb{I}(\hat{a}=a^*),
+\qquad
+\text{Normalized Utility}
+=
+\frac{U^{true}(\hat{a})}{U^{true}(a^*)+\varepsilon}.
+\]
+\end{tcolorbox}
+
+\vspace{0.10cm}
+
+\begin{minipage}[t]{0.47\textwidth}
+\[
+\textbf{Prediction:}
+\quad
+\arg\max_i \text{future risk}_i
+\]
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.47\textwidth}
+\[
+\textbf{Decision:}
+\quad
+\arg\max_{a_i\in A}
+\mathbb{E}\!\left[
+B_i^0-B_i^V(a_i)\mid C_i
+\right].
+\]
+\end{minipage}
+
+\vspace{0.10cm}
+
+\[
+\text{Action}=\text{allocate vaccine},
+\qquad
+\text{Utility}=\text{future infection burden reduced}.
+\]
+
+\end{document}

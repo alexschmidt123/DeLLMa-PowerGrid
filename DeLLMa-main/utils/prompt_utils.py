@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from typing import List, Dict, Callable, Optional, Any
 from time import sleep
 
@@ -120,30 +121,106 @@ def inference(
     if not _api_enabled():
         return _offline_generic_response()
 
-    messages = [
-        {"role": "system", "content": system_content},
-        {"role": "user", "content": query + "<json>"},
-    ]
+    def _is_context_length_error(err_text: str) -> bool:
+        e = err_text.lower()
+        return (
+            "maximum context length" in e
+            or "requested" in e and "tokens" in e and "maximum" in e
+            or "context length" in e
+        )
 
-    success = False
+    def _extract_token_counts(err_text: str) -> tuple[Optional[int], Optional[int]]:
+        # Matches patterns like:
+        # "maximum context length is 4096 tokens ... requested 4884 tokens"
+        max_match = re.search(r"maximum context length is (\d+)", err_text, re.IGNORECASE)
+        req_match = re.search(r"requested (\d+) tokens", err_text, re.IGNORECASE)
+        max_tokens = int(max_match.group(1)) if max_match else None
+        req_tokens = int(req_match.group(1)) if req_match else None
+        return max_tokens, req_tokens
+
+    def _truncate_middle(text: str, keep_chars: int) -> str:
+        if len(text) <= keep_chars:
+            return text
+        if keep_chars < 80:
+            return text[:keep_chars]
+        head = int(keep_chars * 0.6)
+        tail = keep_chars - head
+        return (
+            text[:head]
+            + "\n\n[... truncated automatically to fit model context window ...]\n\n"
+            + text[-tail:]
+        )
+
+    working_query = query
     response_text = ""
-    while not success:
+    parsed_response = None
+    max_attempts = 8
+    # Keep generation budget configurable so local models with tighter context
+    # windows can trade response length for higher success rate.
+    max_output_tokens = int(os.environ.get("LLM_MAX_OUTPUT_TOKENS", "512"))
+    for attempt in range(1, max_attempts + 1):
+        messages = [
+            {"role": "system", "content": system_content},
+            {"role": "user", "content": working_query + "<json>"},
+        ]
         try:
             response_text = chat_completion(
                 messages=messages,
                 temperature=temperature,
+                # Keep outputs bounded so JSON replies are less likely to be cut.
+                max_tokens=max_output_tokens,
             )
-            success = True
+            try:
+                parsed_response = json.loads(response_text)
+                if isinstance(parsed_response, dict):
+                    break
+                print(
+                    f"[inference] non-object JSON on attempt {attempt}/{max_attempts}; retrying."
+                )
+            except Exception as parse_err:
+                print(
+                    f"[inference] invalid JSON on attempt {attempt}/{max_attempts}: {parse_err}"
+                )
+            if attempt < max_attempts:
+                continue
         except Exception as e:
+            err_text = str(e)
+            if _is_context_length_error(err_text):
+                max_tokens, req_tokens = _extract_token_counts(err_text)
+                if max_tokens and req_tokens and req_tokens > 0:
+                    # Reserve room for completion tokens + small buffer.
+                    ratio = max(0.25, (max_tokens - max_output_tokens - 128) / req_tokens)
+                    target_chars = int(len(working_query) * ratio)
+                else:
+                    target_chars = int(len(working_query) * 0.7)
+                target_chars = max(300, target_chars)
+                next_query = _truncate_middle(working_query, target_chars)
+                if next_query == working_query:
+                    print(f"[inference] context overflow and cannot shrink further: {e}")
+                    return {
+                        "decision": "Action 1. context_overflow_fallback",
+                        "explanation": f"Prompt exceeded model context window and could not be reduced further. Error: {err_text}",
+                    }
+                print(
+                    f"[inference] context overflow on attempt {attempt}/{max_attempts}; "
+                    f"shrinking prompt from {len(working_query)} to {len(next_query)} chars."
+                )
+                working_query = next_query
+                continue
+
             print(e)
             sleep(10)
-
-    try:
-        response = json.loads(response_text.lower())
-    except Exception:
-        response = response_text
-
-    return response
+    else:
+        return {
+            "decision": "Action 1. inference_failed_fallback",
+            "explanation": "Inference failed after max retries.",
+        }
+    if parsed_response is None:
+        return {
+            "decision": "Action 1. malformed_json_fallback",
+            "explanation": "Model returned malformed JSON repeatedly.",
+        }
+    return parsed_response
 
 
 def majority_voting_inference(

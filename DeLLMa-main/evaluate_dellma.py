@@ -1,6 +1,7 @@
 import os
 import json
 import argparse
+import re
 import choix
 import numpy as np
 import pandas as pd
@@ -16,7 +17,21 @@ from utils.data_utils import (
     get_combinations,
     AGNOSTIC_STATES,
     POWERGRID_AGNOSTIC_STATES,
+    SEIR_AGNOSTIC_STATES,
 )
+from utils.llm_client import get_model_name
+
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+
+
+def _is_fallback_response(response: dict) -> bool:
+    if not isinstance(response, dict):
+        return False
+    decision = str(response.get("decision", "")).lower()
+    explanation = str(response.get("explanation", "")).lower()
+    # Covers inference_failed_fallback / context_overflow_fallback /
+    # malformed_json_fallback and similar future labels.
+    return ("fallback" in decision) or ("fallback" in explanation)
 
 
 belief2score: Dict[str, float] = {
@@ -31,9 +46,14 @@ belief2score: Dict[str, float] = {
 
 def load_state_beliefs(agent_name, year="2021"):
     if agent_name == "farmer":
-        state_beliefs = json.load(open(f"cache/{agent_name}_{year}_states.json"))
+        state_beliefs = json.load(
+            open(os.path.join(PROJECT_ROOT, f"cache/{agent_name}_{year}_states.json"))
+        )
     else:
-        state_beliefs = json.load(open(f"cache/{agent_name}_states.json"))
+        state_beliefs = json.load(
+            open(os.path.join(PROJECT_ROOT, f"cache/{agent_name}_states.json"))
+        )
+    # Note: seir uses cache/seir_states.json (no year suffix, same as trader/powergrid)
     state2val2prob = {
         state: {val: 0.0 for val in val2belief.keys()}
         for state, val2belief in state_beliefs.items()
@@ -59,12 +79,52 @@ def parse_number(s: str) -> float:
         return float("".join(s.split(",")))
 
 
+def get_seir_optimal_action(schedules: List[str], prediction: int):
+    """
+    Oracle for SEIR vaccine allocation:
+      U(city) = sum_{t=31}^{60} I_no_vaccine(t) - sum_{t=31}^{60} I_with_vaccine(t)
+
+    Uses evaluation-only files:
+      data/seir/future_window_no_vaccine/cityX.csv
+      data/seir/future_window_with_vaccine/cityX.csv
+
+    Returns
+    -------
+    (optimal_idx, optimal_utility, predicted_utility)
+    """
+    eval_no_vax_root = os.path.join(PROJECT_ROOT, "data", "seir", "future_window_no_vaccine")
+    eval_with_vax_root = os.path.join(PROJECT_ROOT, "data", "seir", "future_window_with_vaccine")
+    if not os.path.isdir(eval_no_vax_root) or not os.path.isdir(eval_with_vax_root):
+        raise FileNotFoundError(
+            "SEIR evaluation folders not found. Expected both:\n"
+            f"- {eval_no_vax_root}\n- {eval_with_vax_root}\n"
+            "Generate dataset with seir_sde_data_generation/generate_seir_sde_data.py."
+        )
+    ground_truth = []
+    for city_id in schedules:
+        no_vax_fp = os.path.join(eval_no_vax_root, f"{city_id}.csv")
+        with_vax_fp = os.path.join(eval_with_vax_root, f"{city_id}.csv")
+        if not os.path.isfile(no_vax_fp) or not os.path.isfile(with_vax_fp):
+            raise FileNotFoundError(
+                f"Missing SEIR evaluation file(s) for {city_id}:\n"
+                f"- {no_vax_fp}\n- {with_vax_fp}"
+            )
+        no_vax_df = pd.read_csv(no_vax_fp)
+        with_vax_df = pd.read_csv(with_vax_fp)
+        no_vax_burden = float(no_vax_df["infected_population"].sum())
+        with_vax_burden = float(with_vax_df["infected_population"].sum())
+        ground_truth.append(no_vax_burden - with_vax_burden)
+    optimal_action = int(np.argmax(ground_truth))
+    predicted_utility = ground_truth[prediction]
+    return optimal_action, max(ground_truth), predicted_utility
+
+
 def get_powergrid_optimal_action(clusters: List[str], prediction: int):
     """Oracle: best regime = **highest** mean `stab` (dataset: stab < 0 stable, stab > 0 unstable)."""
     ground_truth = []
     predicted_utility = 0.0
     for choice_idx, c in enumerate(clusters):
-        df = pd.read_csv(f"data/powergrid/{c}.csv")
+        df = pd.read_csv(os.path.join(PROJECT_ROOT, f"data/powergrid/{c}.csv"))
         u = float(df["stab"].mean())
         ground_truth.append(u)
         if choice_idx == prediction:
@@ -73,14 +133,16 @@ def get_powergrid_optimal_action(clusters: List[str], prediction: int):
     return optimal_action, max(ground_truth), predicted_utility
 
 
-def get_stock_optimal_action(stocks, prediction: int):
+def get_stock_optimal_action(stocks, prediction: int, data_subdir: str = "stocks"):
     source_date = "2023-12-01"
     target_date = "2023-12-29"
     ground_truth = []
     predicted_utility = 0.0
 
     for choice_idx, stock in enumerate(stocks):
-        stock_df = pd.read_csv(f"data/stocks/{stock.upper()}.csv")
+        stock_df = pd.read_csv(
+            os.path.join(PROJECT_ROOT, f"data/{data_subdir}/{stock.upper()}.csv")
+        )
         stock_open = stock_df[stock_df.Date == source_date]["Open"].values[0]
         stock_close = stock_df[stock_df.Date == target_date]["Close"].values[0]
         ground_truth.append(stock_close / stock_open)
@@ -93,7 +155,9 @@ def get_stock_optimal_action(stocks, prediction: int):
 
 def get_agriculture_optimal_action(fruits: List[str], prediction: int, year: str):
     next_year = str(int(year) + 1)
-    df = pd.read_csv(f"data/agriculture/stats/CA-{next_year}.csv")
+    df = pd.read_csv(
+        os.path.join(PROJECT_ROOT, f"data/agriculture/stats/CA-{next_year}.csv")
+    )
     ground_truth = []
     predicted_utility = 0.0
 
@@ -147,13 +211,33 @@ def parse_base_response(
         domain_path = f"agriculture/{year}"
     elif agent_name == "powergrid":
         domain_path = "powergrid"
+    elif agent_name == "seir":
+        domain_path = "seir"
     else:
         domain_path = "stocks"
 
-    result_path = (
-        f"{results_path}/{domain_path}/{pref_enum_mode}/{('-'.join(choices)).lower()}"
-    )
-    response = json.load(open(os.path.join(result_path, f"response/response_0.json")))
+    combo = "-".join(choices)
+    candidate_dirs = [
+        os.path.join(results_path, domain_path, pref_enum_mode, combo.lower()),
+        os.path.join(results_path, domain_path, pref_enum_mode, combo),
+        os.path.join(results_path, domain_path, pref_enum_mode, combo.upper()),
+    ]
+    response_file = None
+    for d in candidate_dirs:
+        for fname in ("response_0.json", "response.json"):
+            fpath = os.path.join(d, "response", fname)
+            if os.path.exists(fpath):
+                response_file = fpath
+                break
+        if response_file is not None:
+            break
+    if response_file is None:
+        raise FileNotFoundError(
+            f"Could not find baseline response for combo '{combo}' in any of: {candidate_dirs}"
+        )
+    response = json.load(open(response_file))
+    if _is_fallback_response(response):
+        raise ValueError(f"fallback response rejected: {response_file}")
 
     decision = response["decision"]
     pred = int(decision.split(".")[0].split()[1]) - 1
@@ -167,15 +251,17 @@ def parse_rank_prompt_response(
     year: str = "2021",
     results_path: str = "data",
 ) -> Tuple[List[List[Tuple[str, str]]], np.ndarray, List[Tuple[int, int]]]:
-    if agent_name not in ["farmer", "trader", "powergrid"]:
+    if agent_name not in ["farmer", "trader", "powergrid", "seir"]:
         raise ValueError(
-            "agent_name must be one of 'farmer', 'trader', or 'powergrid'"
+            "agent_name must be one of 'farmer', 'trader', 'powergrid', or 'seir'"
         )
 
     if agent_name == "farmer":
         domain_path = f"agriculture/{year}"
     elif agent_name == "powergrid":
         domain_path = "powergrid"
+    elif agent_name == "seir":
+        domain_path = "seir"
     else:
         domain_path = "stocks"
 
@@ -216,14 +302,42 @@ def parse_rank_prompt_response(
     comparison_pairs = []
     mapped_ranks = []
 
-    for response_idx in range(len(os.listdir(response_path))):
+    if not os.path.isdir(prompt_path):
+        print(f"missing prompt directory: {prompt_path}")
+        return (
+            state_values,
+            np.array(actions).astype(int),
+            comparison_pairs,
+            mapped_ranks,
+        )
+
+    if not os.path.isdir(response_path):
+        print(f"missing response directory: {response_path}")
+        return (
+            state_values,
+            np.array(actions).astype(int),
+            comparison_pairs,
+            mapped_ranks,
+        )
+
+    response_indices = []
+    for prompt_file in os.listdir(prompt_path):
+        m = re.match(r"prompt_(\d+)\.txt$", prompt_file)
+        if m:
+            response_indices.append(int(m.group(1)))
+    response_indices.sort()
+
+    for response_idx in response_indices:
         prompt_fname = os.path.join(prompt_path, f"prompt_{response_idx}.txt")
         response_fname = os.path.join(response_path, f"response_{response_idx}.json")
 
         # load and post-process rank
         try:
             response = json.loads(open(response_fname).read())
-            if "rank" in response:
+            if _is_fallback_response(response):
+                print("error reading response file", response_fname, "(fallback rejected)")
+                rank = None
+            elif "rank" in response:
                 rank = response["rank"]
             else:
                 assert "order" in response
@@ -240,7 +354,11 @@ def parse_rank_prompt_response(
         if set(rank) != set(range(len(rank))):
             rank = rank + list(set(range(len(rank))) - set(rank))
 
-        prompt = open(prompt_fname).readlines()
+        try:
+            prompt = open(prompt_fname).readlines()
+        except Exception:
+            print("error reading prompt file", prompt_fname)
+            continue
         state_action_strings = list(
             filter(
                 lambda x: x.startswith("- State-Action Pair"),
@@ -260,6 +378,8 @@ def parse_rank_prompt_response(
                 + minibatch_idx
                 - index_offset
             )
+            if data_idx < 0 or data_idx >= data_size:
+                continue
 
             mbidx2dataidx.append(data_idx)
             if state_values[data_idx]:
@@ -282,7 +402,11 @@ def parse_rank_prompt_response(
                 agnostic_states = (
                     POWERGRID_AGNOSTIC_STATES
                     if agent_name == "powergrid"
-                    else AGNOSTIC_STATES
+                    else (
+                        SEIR_AGNOSTIC_STATES
+                        if agent_name == "seir"
+                        else AGNOSTIC_STATES
+                    )
                 )
                 if state in agnostic_states:
                     choice_in_state = True
@@ -334,13 +458,20 @@ def predict_one_sample(
         "cot",
         "self-consistency",
     ]:
-        pred = parse_base_response(
-            choices,
-            agent_name,
-            year=year,
-            results_path=results_path,
-            pref_enum_mode=preference_config.pref_enum_mode,
-        )
+        try:
+            pred = parse_base_response(
+                choices,
+                agent_name,
+                year=year,
+                results_path=results_path,
+                pref_enum_mode=preference_config.pref_enum_mode,
+            )
+        except Exception as e:
+            print(f"error reading response file for {choices}: {e}")
+            return 0, [1.0 / len(choices)] * len(choices)
+        if pred < 0 or pred >= len(choices):
+            print(f"error reading response file for {choices}: invalid prediction {pred}")
+            return 0, [1.0 / len(choices)] * len(choices)
         utilities = [0] * len(choices)
         utilities[pred] = 1
         return pred, utilities
@@ -380,19 +511,42 @@ def predict_one_sample(
     else:
         raise ValueError(f"Unknown mode: {mode}")
 
-    scores = util_fct(data=data)
+    if len(data) == 0:
+        # Missing/invalid rank data: keep evaluation running with a neutral fallback.
+        return 0, [1.0 / len(choices)] * len(choices)
+
+    try:
+        scores = util_fct(data=data)
+    except Exception as e:
+        print(f"error computing utilities for {choices}: {e}")
+        return 0, [1.0 / len(choices)] * len(choices)
 
     if softmax_mode == "full":
         scores = softmax(scores / temperature)
     elif softmax_mode == "action":
         for a in sorted(set(actions)):
+            if a < 0:
+                continue
             scores[actions == a] = softmax(scores[actions == a] / temperature)
-    utilities = [
-        scores[actions == a].sum() / (actions == a).sum() for a in sorted(set(actions))
-    ]
 
-    pred = np.argmax(utilities)
-    return pred, utilities
+    valid_action_mask = (actions >= 0) & (actions < len(choices))
+    if not np.any(valid_action_mask):
+        return 0, [1.0 / len(choices)] * len(choices)
+
+    utilities = []
+    for action_id in range(len(choices)):
+        action_mask = valid_action_mask & (actions == action_id)
+        if np.any(action_mask):
+            utilities.append(float(scores[action_mask].mean()))
+        else:
+            utilities.append(float("-inf"))
+
+    if np.all(np.isneginf(utilities)):
+        return 0, [1.0 / len(choices)] * len(choices)
+
+    pred = int(np.argmax(utilities))
+    safe_utilities = [u if np.isfinite(u) else 0.0 for u in utilities]
+    return pred, safe_utilities
 
 
 def predict(
@@ -404,11 +558,9 @@ def predict(
     temperature: float = 1,
     year: str = "2021",
     results_path: str = "data",
-    max_combinations: int | None = None,
+    max_choices: int | None = None,
 ) -> Tuple[int, List[float]]:
-    combs = get_combinations(agent_name, source_year=year)
-    if max_combinations is not None:
-        combs = combs[:max_combinations]
+    combs = get_combinations(agent_name, source_year=year, max_choices=max_choices)
     perf_by_size = defaultdict(list)
     perf_by_product = defaultdict(list)
 
@@ -418,6 +570,8 @@ def predict(
         optimal_action_func = get_stock_optimal_action
     elif agent_name == "powergrid":
         optimal_action_func = get_powergrid_optimal_action
+    elif agent_name == "seir":
+        optimal_action_func = get_seir_optimal_action
     else:
         raise ValueError(agent_name)
 
@@ -481,7 +635,7 @@ if __name__ == "__main__":
         "--agent_name",
         type=str,
         default="farmer",
-        choices=["farmer", "trader", "powergrid"],
+        choices=["farmer", "trader", "powergrid", "seir"],
         help="agent name",
     )
     parser.add_argument("--year", type=str, default="2021", help="year")
@@ -499,17 +653,48 @@ if __name__ == "__main__":
         "--results_path", type=str, default="results", help="path to data folder"
     )
     parser.add_argument(
-        "--max_combinations",
-        type=int,
+        "--model_tag",
+        type=str,
         default=None,
-        metavar="N",
         help=(
-            "If set, only evaluate the first N choice sets in the same order as "
-            "get_combinations (matches main.py --max_combinations). Default: all."
+            "Optional model subfolder under results_path. "
+            "Defaults to current model name tail (same behavior as main.py). "
+            "Set to '' to disable model subfolder."
         ),
     )
-
+    parser.add_argument(
+        "--max_choices",
+        type=int,
+        default=None,
+        metavar="X",
+        help=(
+            "Use only the first X items from the agent dataset list "
+            "(must match main.py --max_choices). Default: full pool."
+        ),
+    )
     args = parser.parse_args()
+    # Normalize results path against project root so script can be run from anywhere.
+    base_results_path = (
+        args.results_path
+        if os.path.isabs(args.results_path)
+        else os.path.join(PROJECT_ROOT, args.results_path)
+    )
+
+    if args.model_tag is None:
+        raw_model = get_model_name()
+        args.model_tag = raw_model.split("/")[-1]
+    effective_results_root = (
+        os.path.join(base_results_path, args.model_tag)
+        if args.model_tag
+        else base_results_path
+    )
+    if not os.path.exists(effective_results_root):
+        # Fallback: if inferred tag path does not exist, use base results root as-is.
+        effective_results_root = base_results_path
+        print(
+            f"[evaluate] inferred model_tag path not found; falling back to: {effective_results_root}"
+        )
+    print(f"[evaluate] results root: {effective_results_root}")
 
     preference_config = PreferenceConfig(
         pref_enum_mode=args.pref_enum_mode,
@@ -527,8 +712,8 @@ if __name__ == "__main__":
         softmax_mode=args.softmax_mode,
         temperature=args.temperature,
         year=args.year,
-        results_path=args.results_path,
-        max_combinations=args.max_combinations,
+        results_path=effective_results_root,
+        max_choices=args.max_choices,
     )
     merged = []
     for key, val in curr_perf_by_size.items():
@@ -538,6 +723,7 @@ if __name__ == "__main__":
     accs = []
     gaps = []
     is_powergrid = args.agent_name == "powergrid"
+    is_seir      = args.agent_name == "seir"
     for key in sorted(curr_perf_by_size.keys()):
         merged += curr_perf_by_size[key]
         accs.append(
@@ -550,6 +736,19 @@ if __name__ == "__main__":
         if is_powergrid:
             # Powergrid objective here is instability triage (higher mean stab is higher risk),
             # so we report regret as (opt_mean_stab - pred_mean_stab): lower is better.
+            gaps.append(
+                round(
+                    np.mean(
+                        [
+                            opt_util - pred_util
+                            for _, _, opt_util, pred_util in curr_perf_by_size[key]
+                        ]
+                    ),
+                    6,
+                )
+            )
+        elif is_seir:
+            # SEIR: regret = opt_ig - pred_ig (lower regret is better)
             gaps.append(
                 round(
                     np.mean(
@@ -579,6 +778,15 @@ if __name__ == "__main__":
         print("Regret (opt_mean_stab - pred_mean_stab)", gaps)
         print(
             "All-Regret (opt_mean_stab - pred_mean_stab)",
+            round(
+                np.mean([opt_util - pred_util for _, _, opt_util, pred_util in merged]),
+                6,
+            ),
+        )
+    elif is_seir:
+        print("IG Regret (opt_ig - pred_ig, lower is better)", gaps)
+        print(
+            "All-IG-Regret",
             round(
                 np.mean([opt_util - pred_util for _, _, opt_util, pred_util in merged]),
                 6,

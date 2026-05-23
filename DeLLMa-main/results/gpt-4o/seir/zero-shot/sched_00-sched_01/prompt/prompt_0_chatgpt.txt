@@ -1,0 +1,33 @@
+=== ROLE: system ===
+You are an expert epidemiologist helping a public health agency choose the optimal sequential observation schedule for monitoring an emerging epidemic under budget constraints.  Your goal is to select the K observation days that will be most informative about the unknown epidemic parameters (transmission rate, progression rate, recovery rate).
+
+=== ROLE: user ===
+Below are the 2 candidate observation schedules I am evaluating: days 5, 10, 20, days 10, 20, 35.
+Each schedule uses exactly 3 observation(s) within a 60-day window.
+For each schedule, I show the simulated mean and standard deviation of the infected proportion I(t)/N at each observation date, computed across 100 parameter draws from the prior distribution (beta ~ U(0.10,0.80), sigma ~ U(0.10,0.40), gamma ~ U(0.05,0.30)).
+A **higher standard deviation** at a given date indicates that the observation is more discriminating across different epidemic parameters.
+
+=== sched_00  —  Observe on day(s): 5, 10, 20 ===
+  Day   5:  mean I(t)/N = 0.0088  (std = 0.0039)
+  Day  10:  mean I(t)/N = 0.0195  (std = 0.0164)
+  Day  20:  mean I(t)/N = 0.0890  (std = 0.1133)
+
+=== sched_01  —  Observe on day(s): 10, 20, 35 ===
+  Day  10:  mean I(t)/N = 0.0193  (std = 0.0159)
+  Day  20:  mean I(t)/N = 0.0882  (std = 0.1109)
+  Day  35:  mean I(t)/N = 0.1194  (std = 0.1216)
+
+
+
+I am a public health epidemiologist designing surveillance for an emerging epidemic.  I have a budget of exactly 3 observation(s) and must commit to fixed dates within a 60-day window.  I want to maximise the information gained about the unknown epidemic parameters (beta, sigma, gamma).  Use the simulation summaries below to identify the most informative schedule.
+
+Below are the actions I can take:
+Action 1. sched_00: observe on day 5, day 10, day 20 (3 observation(s), budget = 3)
+Action 2. sched_01: observe on day 10, day 20, day 35 (3 observation(s), budget = 3)
+
+
+
+I would like to know which action I should take based on the information provided above.
+You should format your response as a JSON object. The JSON object should contain the following keys:
+- decision: a string that describes the action you recommend the seir to take. The output format should be the same as the format of the actions listed above, e.g. Action 1. sched_00: observe on day 5, day 10, day 20 (3 observation(s), budget = 3)
+- explanation: a string that describes, in detail, the reasoning behind your decision. You should justify your choice by explaining which observation dates best capture the epidemic growth phase, peak, and/or decline, and why the selected days are most informative about the unknown epidemic parameters (beta, sigma, gamma). Reference the mean and standard deviation of I(t)/N shown in the simulation summaries above.<json>

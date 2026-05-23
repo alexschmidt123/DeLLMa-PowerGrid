@@ -1,0 +1,76 @@
+=== ROLE: system ===
+You are an expert epidemiologist helping a public health agency choose the optimal sequential observation schedule for monitoring an emerging epidemic under budget constraints.  Your goal is to select the K observation days that will be most informative about the unknown epidemic parameters (transmission rate, progression rate, recovery rate).
+
+=== ROLE: user ===
+Below are the 2 candidate observation schedules I am evaluating: days 5, 10, 20, days 15, 30, 45.
+Each schedule uses exactly 3 observation(s) within a 60-day window.
+For each schedule, I show the simulated mean and standard deviation of the infected proportion I(t)/N at each observation date, computed across 100 parameter draws from the prior distribution (beta ~ U(0.10,0.80), sigma ~ U(0.10,0.40), gamma ~ U(0.05,0.30)).
+A **higher standard deviation** at a given date indicates that the observation is more discriminating across different epidemic parameters.
+
+=== sched_00  —  Observe on day(s): 5, 10, 20 ===
+  Day   5:  mean I(t)/N = 0.0088  (std = 0.0038)
+  Day  10:  mean I(t)/N = 0.0191  (std = 0.0159)
+  Day  20:  mean I(t)/N = 0.0882  (std = 0.1112)
+
+=== sched_02  —  Observe on day(s): 15, 30, 45 ===
+  Day  15:  mean I(t)/N = 0.0446  (std = 0.0508)
+  Day  30:  mean I(t)/N = 0.1341  (std = 0.1446)
+  Day  45:  mean I(t)/N = 0.0796  (std = 0.0779)
+
+
+
+I am a public health epidemiologist designing surveillance for an emerging epidemic.  I have a budget of exactly 3 observation(s) and must commit to fixed dates within a 60-day window.  I want to maximise the information gained about the unknown epidemic parameters (beta, sigma, gamma).  Use the simulation summaries below to identify the most informative schedule.
+
+Below are the actions I can take:
+Action 1. sched_00: observe on day 5, day 10, day 20 (3 observation(s), budget = 3)
+Action 2. sched_02: observe on day 15, day 30, day 45 (3 observation(s), budget = 3)
+
+I would like to adopt a decision making under uncertainty framework to make my decision. The goal of you, the decision maker, is to choose an optimal action, while accounting for uncertainty in the unknown state. Previously, you have already provided a forecast of future state variables relevant to epidemic observation scheduling decisions. The state is a vector of 8 elements, each of which is a random variable. The state variables (and their most probable values) are enumerated below:
+- epidemic peak timing: {'early (days 10-25)': 'somewhat likely', 'mid (days 25-40)': 'likely', 'late (days 40-60)': 'somewhat unlikely'}
+- transmission rate level: {'low (beta < 0.3)': 'somewhat unlikely', 'moderate (beta 0.3-0.5)': 'likely', 'high (beta > 0.5)': 'somewhat likely'}
+- recovery rate level: {'slow (gamma < 0.1)': 'somewhat likely', 'moderate (gamma 0.1-0.2)': 'likely', 'fast (gamma > 0.2)': 'somewhat unlikely'}
+- epidemic growth rate: {'slow (doubling > 10 days)': 'somewhat unlikely', 'moderate (doubling 5-10 days)': 'likely', 'fast (doubling < 5 days)': 'somewhat likely'}
+- post-peak observation coverage for schedule days 5, 10, 20: {'low': 'very likely', 'moderate': 'unlikely', 'high': 'very unlikely'}
+- pre-peak observation coverage for schedule days 5, 10, 20: {'low': 'very unlikely', 'moderate': 'unlikely', 'high': 'very likely'}
+- post-peak observation coverage for schedule days 15, 30, 45: {'low': 'unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+- pre-peak observation coverage for schedule days 15, 30, 45: {'low': 'unlikely', 'moderate': 'likely', 'high': 'somewhat likely'}
+
+Below, I have sampled a set of state-action pairs, wherein states are sampled from the state belief distribution you provided and actions are sampled uniformly from the action space. I would like to construct a utility function from your comparisons of state-action pairs
+
+- State-Action Pair 1. State: epidemic peak timing: early (days 10-25), transmission rate level: low (beta < 0.3), recovery rate level: fast (gamma > 0.2), epidemic growth rate: moderate (doubling 5-10 days), pre-peak observation coverage for schedule days 5, 10, 20: moderate, post-peak observation coverage for schedule days 5, 10, 20: moderate, pre-peak observation coverage for schedule days 15, 30, 45: high, post-peak observation coverage for schedule days 15, 30, 45: high; Action 1. sched_00: observe on day 5, day 10, day 20 (3 observation(s), budget = 3)
+
+- State-Action Pair 2. State: epidemic peak timing: mid (days 25-40), transmission rate level: moderate (beta 0.3-0.5), recovery rate level: moderate (gamma 0.1-0.2), epidemic growth rate: fast (doubling < 5 days), pre-peak observation coverage for schedule days 5, 10, 20: high, post-peak observation coverage for schedule days 5, 10, 20: low, pre-peak observation coverage for schedule days 15, 30, 45: moderate, post-peak observation coverage for schedule days 15, 30, 45: low; Action 1. sched_00: observe on day 5, day 10, day 20 (3 observation(s), budget = 3)
+
+- State-Action Pair 3. State: epidemic peak timing: early (days 10-25), transmission rate level: low (beta < 0.3), recovery rate level: fast (gamma > 0.2), epidemic growth rate: moderate (doubling 5-10 days), pre-peak observation coverage for schedule days 5, 10, 20: high, post-peak observation coverage for schedule days 5, 10, 20: moderate, pre-peak observation coverage for schedule days 15, 30, 45: moderate, post-peak observation coverage for schedule days 15, 30, 45: moderate; Action 1. sched_00: observe on day 5, day 10, day 20 (3 observation(s), budget = 3)
+
+- State-Action Pair 4. State: epidemic peak timing: early (days 10-25), transmission rate level: high (beta > 0.5), recovery rate level: slow (gamma < 0.1), epidemic growth rate: moderate (doubling 5-10 days), pre-peak observation coverage for schedule days 5, 10, 20: low, post-peak observation coverage for schedule days 5, 10, 20: low, pre-peak observation coverage for schedule days 15, 30, 45: low, post-peak observation coverage for schedule days 15, 30, 45: moderate; Action 2. sched_02: observe on day 15, day 30, day 45 (3 observation(s), budget = 3)
+
+- State-Action Pair 5. State: epidemic peak timing: mid (days 25-40), transmission rate level: high (beta > 0.5), recovery rate level: moderate (gamma 0.1-0.2), epidemic growth rate: slow (doubling > 10 days), pre-peak observation coverage for schedule days 5, 10, 20: high, post-peak observation coverage for schedule days 5, 10, 20: moderate, pre-peak observation coverage for schedule days 15, 30, 45: moderate, post-peak observation coverage for schedule days 15, 30, 45: high; Action 2. sched_02: observe on day 15, day 30, day 45 (3 observation(s), budget = 3)
+
+- State-Action Pair 6. State: epidemic peak timing: mid (days 25-40), transmission rate level: moderate (beta 0.3-0.5), recovery rate level: moderate (gamma 0.1-0.2), epidemic growth rate: slow (doubling > 10 days), pre-peak observation coverage for schedule days 5, 10, 20: moderate, post-peak observation coverage for schedule days 5, 10, 20: low, pre-peak observation coverage for schedule days 15, 30, 45: moderate, post-peak observation coverage for schedule days 15, 30, 45: low; Action 1. sched_00: observe on day 5, day 10, day 20 (3 observation(s), budget = 3)
+
+- State-Action Pair 7. State: epidemic peak timing: early (days 10-25), transmission rate level: moderate (beta 0.3-0.5), recovery rate level: fast (gamma > 0.2), epidemic growth rate: fast (doubling < 5 days), pre-peak observation coverage for schedule days 5, 10, 20: high, post-peak observation coverage for schedule days 5, 10, 20: low, pre-peak observation coverage for schedule days 15, 30, 45: low, post-peak observation coverage for schedule days 15, 30, 45: moderate; Action 1. sched_00: observe on day 5, day 10, day 20 (3 observation(s), budget = 3)
+
+- State-Action Pair 8. State: epidemic peak timing: early (days 10-25), transmission rate level: high (beta > 0.5), recovery rate level: moderate (gamma 0.1-0.2), epidemic growth rate: moderate (doubling 5-10 days), pre-peak observation coverage for schedule days 5, 10, 20: high, post-peak observation coverage for schedule days 5, 10, 20: low, pre-peak observation coverage for schedule days 15, 30, 45: moderate, post-peak observation coverage for schedule days 15, 30, 45: high; Action 2. sched_02: observe on day 15, day 30, day 45 (3 observation(s), budget = 3)
+
+- State-Action Pair 9. State: epidemic peak timing: mid (days 25-40), transmission rate level: low (beta < 0.3), recovery rate level: slow (gamma < 0.1), epidemic growth rate: slow (doubling > 10 days), pre-peak observation coverage for schedule days 5, 10, 20: moderate, post-peak observation coverage for schedule days 5, 10, 20: low, pre-peak observation coverage for schedule days 15, 30, 45: low, post-peak observation coverage for schedule days 15, 30, 45: moderate; Action 1. sched_00: observe on day 5, day 10, day 20 (3 observation(s), budget = 3)
+
+- State-Action Pair 10. State: epidemic peak timing: late (days 40-60), transmission rate level: moderate (beta 0.3-0.5), recovery rate level: moderate (gamma 0.1-0.2), epidemic growth rate: fast (doubling < 5 days), pre-peak observation coverage for schedule days 5, 10, 20: high, post-peak observation coverage for schedule days 5, 10, 20: low, pre-peak observation coverage for schedule days 15, 30, 45: high, post-peak observation coverage for schedule days 15, 30, 45: low; Action 2. sched_02: observe on day 15, day 30, day 45 (3 observation(s), budget = 3)
+
+- State-Action Pair 11. State: epidemic peak timing: mid (days 25-40), transmission rate level: high (beta > 0.5), recovery rate level: slow (gamma < 0.1), epidemic growth rate: fast (doubling < 5 days), pre-peak observation coverage for schedule days 5, 10, 20: high, post-peak observation coverage for schedule days 5, 10, 20: low, pre-peak observation coverage for schedule days 15, 30, 45: high, post-peak observation coverage for schedule days 15, 30, 45: high; Action 1. sched_00: observe on day 5, day 10, day 20 (3 observation(s), budget = 3)
+
+- State-Action Pair 12. State: epidemic peak timing: early (days 10-25), transmission rate level: high (beta > 0.5), recovery rate level: fast (gamma > 0.2), epidemic growth rate: moderate (doubling 5-10 days), pre-peak observation coverage for schedule days 5, 10, 20: high, post-peak observation coverage for schedule days 5, 10, 20: low, pre-peak observation coverage for schedule days 15, 30, 45: high, post-peak observation coverage for schedule days 15, 30, 45: moderate; Action 2. sched_02: observe on day 15, day 30, day 45 (3 observation(s), budget = 3)
+
+- State-Action Pair 13. State: epidemic peak timing: late (days 40-60), transmission rate level: moderate (beta 0.3-0.5), recovery rate level: slow (gamma < 0.1), epidemic growth rate: fast (doubling < 5 days), pre-peak observation coverage for schedule days 5, 10, 20: high, post-peak observation coverage for schedule days 5, 10, 20: low, pre-peak observation coverage for schedule days 15, 30, 45: high, post-peak observation coverage for schedule days 15, 30, 45: high; Action 2. sched_02: observe on day 15, day 30, day 45 (3 observation(s), budget = 3)
+
+- State-Action Pair 14. State: epidemic peak timing: late (days 40-60), transmission rate level: low (beta < 0.3), recovery rate level: moderate (gamma 0.1-0.2), epidemic growth rate: fast (doubling < 5 days), pre-peak observation coverage for schedule days 5, 10, 20: high, post-peak observation coverage for schedule days 5, 10, 20: low, pre-peak observation coverage for schedule days 15, 30, 45: moderate, post-peak observation coverage for schedule days 15, 30, 45: moderate; Action 2. sched_02: observe on day 15, day 30, day 45 (3 observation(s), budget = 3)
+
+- State-Action Pair 15. State: epidemic peak timing: early (days 10-25), transmission rate level: high (beta > 0.5), recovery rate level: moderate (gamma 0.1-0.2), epidemic growth rate: fast (doubling < 5 days), pre-peak observation coverage for schedule days 5, 10, 20: high, post-peak observation coverage for schedule days 5, 10, 20: moderate, pre-peak observation coverage for schedule days 15, 30, 45: high, post-peak observation coverage for schedule days 15, 30, 45: moderate; Action 2. sched_02: observe on day 15, day 30, day 45 (3 observation(s), budget = 3)
+
+- State-Action Pair 16. State: epidemic peak timing: late (days 40-60), transmission rate level: high (beta > 0.5), recovery rate level: slow (gamma < 0.1), epidemic growth rate: fast (doubling < 5 days), pre-peak observation coverage for schedule days 5, 10, 20: moderate, post-peak observation coverage for schedule days 5, 10, 20: low, pre-peak observation coverage for schedule days 15, 30, 45: moderate, post-peak observation coverage for schedule days 15, 30, 45: high; Action 1. sched_00: observe on day 5, day 10, day 20 (3 observation(s), budget = 3)
+
+
+You should format your response as a JSON object. The JSON object should contain the following keys:
+- decision: a string that describes the state-action pair you recommend the seir to take. The output format should be the same as the format of the state-action pairs listed above, e.g. State-Action Pair 5.
+- rank: a list of integers that ranks the state-action pairs in decreasing rank of preference. For example, if you think the first state-action pair is the most preferred, the second state-action pair is the second most preferred, and so on. For example, [1, 2, 3, 4, 5].
+- explanation: a string that describes, in detail, the reasoning behind your decision. You should justify your ranking by referencing the standard deviation of I(t)/N at each observation date (higher std = more informative), and explain which schedule phases (growth, peak, decline) each date captures.<json>

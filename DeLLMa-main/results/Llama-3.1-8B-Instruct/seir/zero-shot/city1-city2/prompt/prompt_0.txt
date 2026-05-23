@@ -1,0 +1,27 @@
+Below are the 2 candidate cities I can allocate the first vaccine supply to: city1, city2.
+Use only observed-window data (days 1-30). Future-window files are not visible.
+Each city file contains 30 observed days with infected and recovered counts (N=unknown, T=60, dt=0.1).
+For each city, I summarize observed infected/recovered statistics and end-of-window levels.
+
+=== city1  —  Observed window days 1-30 ===
+  Infected mean=27.67, std=6.43, last_day=39.26
+  Recovered mean=56.70, std=38.40, last_day=134.06
+
+=== city2  —  Observed window days 1-30 ===
+  Infected mean=83.55, std=43.23, last_day=157.70
+  Recovered mean=115.88, std=95.52, last_day=326.50
+
+
+
+I am a public health epidemiologist deciding vaccine allocation across cities. I have a budget of exactly 1 initial vaccine allocation slot(s) and must choose one city from the candidate list using only the observed window. The epidemic horizon is the configured days.
+
+Below are the actions I can take:
+Action 1. city1: allocate the first vaccine supply to city1 (budget = 1)
+Action 2. city2: allocate the first vaccine supply to city2 (budget = 1)
+
+
+
+I would like to know which action I should take based on the information provided above.
+You should format your response as a JSON object. The JSON object should contain the following keys:
+- decision: a string that describes the action you recommend the seir to take. The output format should be the same as the format of the actions listed above, e.g. Action 1. city1: allocate the first vaccine supply to city1 (budget = 1)
+- explanation: a string that describes, in detail, the reasoning behind your decision. You should justify your choice using only observed-window epidemic signals (days 1-30), focusing on which city is likely to yield the largest future infection-burden reduction if vaccinated first.

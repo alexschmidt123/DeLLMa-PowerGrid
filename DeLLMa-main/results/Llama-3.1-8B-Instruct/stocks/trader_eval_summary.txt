@@ -1,0 +1,13 @@
+Trader Evaluation Summary
+model: Llama-3.1-8B-Instruct
+agent: trader
+max_choices: 3
+generated_at: 2026-05-17 23:30:22 CDT
+
+method                                                        all_acc  all_opt
+---------------------------------------------------------------------------------------------------
+zero-shot                                                       100.0    100.0
+self-consistency                                                100.0    100.0
+cot                                                             100.0    100.0
+rank                                                             50.0   39.904
+rank-minibatch(sample_size=16,minibatch_size=32,overlap=25)      75.0    67.78

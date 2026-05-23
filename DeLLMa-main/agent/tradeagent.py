@@ -51,14 +51,20 @@ class TradeAgent(DeLLMaAgent):
         self,
         choices: List[str],
         path: str = os.path.join(PROJECT_ROOT, "data/stocks/"),
-        raw_context_fname: str = "stock.csv",
+        raw_context_fname: str | None = None,
         temperature: float = 0.0,
         state_config: Optional[dataclass] = None,
         action_config: Optional[dataclass] = None,
         preference_config: Optional[dataclass] = None,
         agent_name: str = "trader",
         history_length: int = 24,
+        stock_pool: Optional[List[str]] = None,
+        stock_name_map: Optional[Dict[str, str]] = None,
     ):
+        if stock_pool is not None:
+            self.stocks = stock_pool
+        if stock_name_map is not None:
+            self.stocks_symbol_to_name_map = stock_name_map
         assert set(choices).issubset(set(self.stocks))
         self.choices = sorted(set(choices))
         self.path = path

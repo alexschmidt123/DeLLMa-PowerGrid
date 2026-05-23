@@ -50,6 +50,11 @@ class DeLLMaAgent:
 
     unit: str = "units"
     product: str = "fruit"
+    _DEFAULT_STATE_BELIEFS: Dict[str, str] = {
+        "high": "somewhat unlikely",
+        "moderate": "likely",
+        "low": "somewhat likely",
+    }
 
     def __init__(
         self,
@@ -62,24 +67,53 @@ class DeLLMaAgent:
         preference_config: Optional[dataclass] = None,
         agent_name: str = "farmer",
     ):
-        if not os.path.exists(os.path.join(path, "reports", "summary")):
-            os.makedirs(os.path.join(path, "reports", "summary"))
-
-        self.cache_context_fname = os.path.join(
-            path, "reports", "summary", raw_context_fname.split(".")[0] + ".json"
-        )
-
-        self.raw_context_fname = os.path.join(path, "reports", raw_context_fname)
+        self.raw_context_fname = None
+        self.cache_context_fname = None
+        if raw_context_fname is not None:
+            reports_summary = os.path.join(path, "reports", "summary")
+            if not os.path.exists(reports_summary):
+                os.makedirs(reports_summary)
+            self.cache_context_fname = os.path.join(
+                reports_summary, raw_context_fname.split(".")[0] + ".json"
+            )
+            self.raw_context_fname = os.path.join(path, "reports", raw_context_fname)
         self.temperature = temperature
         self.utility_prompt = utility_prompt
         self.state_config = state_config
         self.action_config = action_config
         self.preference_config = preference_config
-        if agent_name not in ["farmer", "trader", "powergrid"]:
+        if agent_name not in ["farmer", "trader", "powergrid", "seir"]:
             raise ValueError(
-                "Agent name must be one of: farmer, trader, powergrid."
+                "Agent name must be one of: farmer, trader, powergrid, seir."
             )
         self.agent_name = agent_name  # farmer or trader
+
+    def _resolve_state_cache_path(self) -> str:
+        """Return the best available state-belief cache path for this agent."""
+        if hasattr(self, "source_year"):
+            primary = os.path.join(
+                PROJECT_ROOT, f"cache/{self.agent_name}_{self.source_year}_states.json"
+            )
+        else:
+            primary = os.path.join(PROJECT_ROOT, f"cache/{self.agent_name}_states.json")
+
+        if os.path.exists(primary):
+            return primary
+
+        raise FileNotFoundError(
+            f"State belief cache not found for agent '{self.agent_name}'. Expected: {primary}"
+        )
+
+    def _beliefs_for_state(
+        self, full_state_beliefs: Dict[str, Dict[str, str]], state_name: str
+    ) -> Dict[str, str]:
+        """Get state beliefs with a robust default when a state key is absent."""
+        if state_name in full_state_beliefs:
+            return full_state_beliefs[state_name]
+        warnings.warn(
+            f"Missing state beliefs for '{state_name}'. Using default beliefs."
+        )
+        return self._DEFAULT_STATE_BELIEFS.copy()
 
     def cache_context(
         self,
@@ -109,22 +143,17 @@ class DeLLMaAgent:
                               key: names of state variables that are relevant to the agent
                               value: tuple of lists of state values and their corresponding probabilities
         """
-        if hasattr(self, "source_year"):
-            fname = f"cache/{self.agent_name}_{self.source_year}_states.json"
-        else:
-            fname = f"cache/{self.agent_name}_states.json"
-        _full_state_beliefs = json.load(
-            open(os.path.join(PROJECT_ROOT, fname), "r"),
-        )
+        cache_path = self._resolve_state_cache_path()
+        _full_state_beliefs = json.load(open(cache_path, "r"))
 
         self.belief_dist = {}
-        for state, val2belief in _full_state_beliefs.items():
-            if state in self.state_config.states:
-                total_score = sum([self.belief2score[v] for v in val2belief.values()])
-                self.belief_dist[state] = (
-                    list(val2belief.keys()),
-                    [self.belief2score[v] / total_score for v in val2belief.values()],
-                )
+        for state in self.state_config.states:
+            val2belief = self._beliefs_for_state(_full_state_beliefs, state)
+            total_score = sum([self.belief2score[v] for v in val2belief.values()])
+            self.belief_dist[state] = (
+                list(val2belief.keys()),
+                [self.belief2score[v] / total_score for v in val2belief.values()],
+            )
 
         return self.belief_dist
 
@@ -238,22 +267,20 @@ class DeLLMaAgent:
                 else (
                     "trading decisions"
                     if self.agent_name == "trader"
-                    else "grid operating decisions"
+                    else (
+                        "grid operating decisions"
+                        if self.agent_name == "powergrid"
+                        else "epidemic observation scheduling decisions"
+                    )
                 )
             )
             state_prompt = f"""I would like to adopt a decision making under uncertainty framework to make my decision. The goal of you, the decision maker, is to choose an optimal action, while accounting for uncertainty in the unknown state. Previously, you have already provided a forecast of future state variables relevant to {_task}. The state is a vector of {len(self.state_config.states)} elements, each of which is a random variable. The state variables (and their most probable values) are enumerated below:"""
-            if hasattr(self, "source_year"):
-                fname = f"cache/{self.agent_name}_{self.source_year}_states.json"
-            else:
-                fname = f"cache/{self.agent_name}_states.json"
-            _full_state_beliefs = json.load(
-                open(
-                    os.path.join(PROJECT_ROOT, fname),
-                    "r",
-                ),
-            )
+            cache_path = self._resolve_state_cache_path()
+            _full_state_beliefs = json.load(open(cache_path, "r"))
             for state in self.state_config.states.keys():
-                state_prompt += f"\n- {state}: {_full_state_beliefs[state]}"
+                state_prompt += (
+                    f"\n- {state}: {self._beliefs_for_state(_full_state_beliefs, state)}"
+                )
         else:
             raise NotImplementedError
         return state_prompt
@@ -283,6 +310,20 @@ class DeLLMaAgent:
                         format_instruction += """You should include information on expected instability risk: in this dataset stab<0 is stable and stab>0 is unstable; prioritize the most unstable regime first using unstable stabf mix and higher mean stab per regime to support your choice."""
                 else:
                     format_instruction += """You should justify expected stability using **only** τ / p / g summaries and scenario rows; outcome columns are muted in this prompt."""
+            elif self.product == "observation_schedule":
+                format_instruction += (
+                    """You should justify your choice by explaining which observation """
+                    """dates best capture the epidemic growth phase, peak, and/or decline, """
+                    """and why the selected days are most informative about the unknown """
+                    """epidemic parameters (beta, sigma, gamma). Reference the mean and """
+                    """standard deviation of I(t) shown in the dataset summaries above."""
+                )
+            elif self.product == "city_allocation":
+                format_instruction += (
+                    """You should justify your choice using only observed-window epidemic """
+                    """signals (days 1-30), focusing on which city is likely to yield the """
+                    """largest future infection-burden reduction if vaccinated first."""
+                )
             else:
                 raise NotImplementedError
             return format_query(
@@ -305,6 +346,18 @@ class DeLLMaAgent:
                         format_instruction += """You should include information on expected instability risk: stab<0 stable, stab>0 unstable; unstable stabf mix and higher mean stab; and how tau/p/g patterns support your ranking."""
                     else:
                         format_instruction += """You should explain how tau/p/g patterns support your ranking; outcome columns are muted in this prompt."""
+                elif self.product == "observation_schedule":
+                    format_instruction += (
+                        """You should justify your ranking by referencing the standard deviation """
+                        """of I(t) at each observation date (higher std = more informative), """
+                        """and explain which schedule phases (growth, peak, decline) each date captures."""
+                    )
+                elif self.product == "city_allocation":
+                    format_instruction += (
+                        """You should justify your ranking using only observed-window signals """
+                        """(days 1-30), comparing likely near-future burden and expected burden """
+                        """reduction from allocating vaccine first to each city."""
+                    )
                 else:
                     raise NotImplementedError
             elif "pairwise" in pref_enum_mode:
@@ -321,6 +374,18 @@ class DeLLMaAgent:
                         format_instruction += """You should include information on expected instability risk: stab<0 stable, stab>0 unstable; unstable stabf mix and higher mean stab; and how tau/p/g patterns support your ranking."""
                     else:
                         format_instruction += """You should explain how tau/p/g patterns support your ranking; outcome columns are muted in this prompt."""
+                elif self.product == "observation_schedule":
+                    format_instruction += (
+                        """You should justify your ranking by referencing the standard deviation """
+                        """of I(t) at each observation date (higher std = more informative), """
+                        """and explain which schedule phases (growth, peak, decline) each date captures."""
+                    )
+                elif self.product == "city_allocation":
+                    format_instruction += (
+                        """You should justify your ranking using only observed-window signals """
+                        """(days 1-30), comparing likely near-future burden and expected burden """
+                        """reduction from allocating vaccine first to each city."""
+                    )
                 else:
                     raise NotImplementedError
         if "minibatch" in pref_enum_mode:
@@ -448,6 +513,14 @@ For example, if one of the state variable is 'climate condition', and the top 3 
                     reward_prompt = f"""{prefix}For each action, assign a **relative stability score** for that microgrid regime using **only** τ / p / g context above (larger = safer / more stable operation in your judgment). Outcome columns are muted.
         You should format your response as a JSON object, where each key should be an action listed above. Please include all actions.
         Each key should map to a JSON object with keys 'reward' (float), 'unit' (e.g. 'relative_stability'), and 'explanation' (your reasoning from features only)."""
+            elif self.product == "observation_schedule":
+                reward_prompt = f"""{prefix}For each action (observation schedule), assign a **relative informativeness score** (larger = more informative about the epidemic parameters beta, sigma, gamma). Use the empirical mean and standard deviation of I(t) shown in the context above.
+        You should format your response as a JSON object, where each key should be an action listed above. Please include all actions.
+        Each key should map to a JSON object with keys 'reward' (float), 'unit' (e.g. 'relative_informativeness'), and 'explanation' (your reasoning based on epidemic phase coverage and cross-parameter variability)."""
+            elif self.product == "city_allocation":
+                reward_prompt = f"""{prefix}For each action (city vaccine allocation), assign a **relative expected burden-reduction score** (larger = better) using only observed-window data shown above.
+        You should format your response as a JSON object, where each key should be an action listed above. Please include all actions.
+        Each key should map to a JSON object with keys 'reward' (float), 'unit' (e.g. 'relative_burden_reduction'), and 'explanation' (your reasoning)."""
             else:
                 reward_prompt = f"""{prefix}For each action, think about how much money you would get if you take this action.
         You should format your response as a JSON object, where in each key should be an action listed above. Please include all actions.

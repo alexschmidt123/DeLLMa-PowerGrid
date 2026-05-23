@@ -39,12 +39,6 @@ DeLLMa-main/
 │   └── cluster_split.py        # Clustering script
 ├── cache/                      # Cached LLM state-belief JSONs
 ├── results/                    # Generated prompts + LLM responses
-├── scripts/
-│   ├── test_llm_backend.py     # Smoke test for LLM backend
-│   ├── setup_models.sh         # Check local model availability
-│   ├── start_vllm_llama.sh     # Start vLLM with Llama 3.1 8B
-│   ├── start_vllm_mistral.sh   # Start vLLM with Mistral 7B
-│   └── start_vllm_gemma.sh     # Start vLLM with Gemma 2 9B
 ├── local_models/               # Recommended weight storage
 │   └── README.md
 ├── CODEBASE_RESEARCH_SUMMARY.md
@@ -92,62 +86,22 @@ python main.py --agent_name powergrid --dellma_mode zero-shot --results_path res
 python main.py --agent_name powergrid --dellma_mode rank      --results_path results
 ```
 
-### 2. With local vLLM + Llama 3.1 8B
+### 2. With local vLLM (Llama / Mistral / Gemma)
 
-**Terminal 1 — start the model server:**
+Use the unified runner. It can choose app + model and auto-start local vLLM.
+If weights are missing, they are downloaded automatically to `local_models/`.
+
 ```bash
-# First download weights (one-time):
-LOCAL_MODEL_DIR=local_models
-huggingface-cli download meta-llama/Llama-3.1-8B-Instruct \
-    --local-dir $LOCAL_MODEL_DIR/Llama-3.1-8B-Instruct
-
-# Start server:
-bash scripts/start_vllm_llama.sh
-# Equivalent manual command:
-# vllm serve meta-llama/Llama-3.1-8B-Instruct --api-key token-abc123
-```
-
-**Terminal 2 — run DeLLMa:**
-```bash
-export LLM_BACKEND=vllm
-export DEFAULT_MODEL=meta-llama/Llama-3.1-8B-Instruct
-export VLLM_BASE_URL=http://localhost:8000/v1
-export VLLM_API_KEY=token-abc123
-
 conda activate dellma
-python main.py --agent_name powergrid --dellma_mode zero-shot --results_path results
-```
 
-### 3. With local vLLM + Mistral 7B
+# Powergrid with local Llama
+./run.sh --agent powergrid --backend vllm --model llama
 
-```bash
-# Download:
-huggingface-cli download mistralai/Mistral-7B-Instruct-v0.3 \
-    --local-dir local_models/Mistral-7B-Instruct-v0.3
+# Trader with local Mistral
+./run.sh --agent trader --backend vllm --model mistral
 
-# Start server:
-bash scripts/start_vllm_mistral.sh
-# Or: vllm serve mistralai/Mistral-7B-Instruct-v0.3 --api-key token-abc123
-
-# Run DeLLMa:
-LLM_BACKEND=vllm DEFAULT_MODEL=mistralai/Mistral-7B-Instruct-v0.3 \
-    python main.py --agent_name powergrid --dellma_mode zero-shot --results_path results
-```
-
-### 4. With local vLLM + Gemma 2 9B
-
-```bash
-# Download (requires Google HF access):
-huggingface-cli download google/gemma-2-9b-it \
-    --local-dir local_models/gemma-2-9b-it
-
-# Start server:
-bash scripts/start_vllm_gemma.sh
-# Or: vllm serve google/gemma-2-9b-it --api-key token-abc123 --enforce-eager
-
-# Run DeLLMa:
-LLM_BACKEND=vllm DEFAULT_MODEL=google/gemma-2-9b-it \
-    python main.py --agent_name powergrid --dellma_mode zero-shot --results_path results
+# Farmer (2021) with local Gemma
+./run.sh --agent farmer --year 2021 --backend vllm --model gemma
 ```
 
 > **Note on JSON mode:** Some local models may not support `response_format=json_object`.
@@ -169,26 +123,16 @@ conda run -n dellma python evaluate_dellma.py \
 
 ---
 
-## Testing the LLM Backend
+## Running by Application
 
 ```bash
-# Test current backend (reads .env):
-conda activate dellma
-python scripts/test_llm_backend.py
+# OpenAI backend
+./run.sh --agent powergrid --backend openai
 
-# Test vLLM with Llama explicitly:
-LLM_BACKEND=vllm DEFAULT_MODEL=meta-llama/Llama-3.1-8B-Instruct \
-    VLLM_BASE_URL=http://localhost:8000/v1 \
-    python scripts/test_llm_backend.py
-```
-
----
-
-## Checking Local Models
-
-```bash
-bash scripts/setup_models.sh
-# Set LOCAL_MODEL_DIR to control where weights are expected.
+# Local vLLM backend
+./run.sh --agent powergrid --backend vllm --model llama
+./run.sh --agent trader    --backend vllm --model mistral
+./run.sh --agent farmer --year 2021 --backend vllm --model gemma
 ```
 
 ---
@@ -211,7 +155,7 @@ bash scripts/setup_models.sh
 python main.py --agent_name powergrid \
     --dellma_mode zero-shot \
     --results_path results \
-    --max_combinations 10 \          # quick test: only first 10 choice sets
+    --max_choices 5 \                # optional: first X datasets (trader: legacy stocks_5)
     --powergrid-reveal-stability-stats  # give stab stats to the model (easy mode)
     --export-prompts-only            # generate prompts without calling API
 ```

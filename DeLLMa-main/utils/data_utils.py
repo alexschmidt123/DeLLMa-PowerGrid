@@ -3,6 +3,21 @@ from typing import List, Tuple, Optional
 import pandas as pd
 from itertools import combinations
 
+# ---------------------------------------------------------------------------
+# SEIR city-action pool
+# ---------------------------------------------------------------------------
+# Keys align with generated files under:
+# data/seir/observed_window/city1.csv ... city10.csv
+SEIR_SCHEDULES = [f"city{i}" for i in range(1, 11)]
+
+# State variables known to every schedule (used in rank / rank-minibatch parsing)
+SEIR_AGNOSTIC_STATES = [
+    "epidemic peak timing",
+    "transmission rate level",
+    "recovery rate level",
+    "epidemic growth rate",
+]
+
 FRUITS = {
     "2021": [
         "apple",
@@ -54,10 +69,14 @@ FRUIT_STATES = {
 # farmer/trader combinatorics: 2^7 - 1 - 7 = 120 choice-set runs.
 POWERGRID_CLUSTERS = [f"cluster_{i:02d}" for i in range(7)]
 
-STOCKS = ["AMD", "DIS", "GME", "GOOGL", "META", "NVDA", "SPY"]
+# All symbols with CSVs under data/stocks/. First 5 = legacy stocks_5 (--max_choices 5).
+STOCKS = ["AMD", "BILI", "DIS", "GE", "GME", "GOOGL", "META", "NVDA", "SPY"]
+STOCKS_5 = STOCKS[:5]
 STOCKS_SYMBOL_TO_NAME_MAP = {
     "AMD": "Advanced Micro Devices",
+    "BILI": "Bilibili Inc.",
     "DIS": "The Walt Disney Company",
+    "GE": "General Electric",
     "GME": "GameStop Corp",
     "GOOGL": "Alphabet, i.e. Google",
     "META": "Meta Platforms, i.e. Facebook",
@@ -66,20 +85,52 @@ STOCKS_SYMBOL_TO_NAME_MAP = {
 }
 
 
-def get_combinations(
-    agent_name: str, source_year: Optional[str] = None
-) -> List[Tuple[str, ...]]:
-    combs = []
+def get_product_pool(
+    agent_name: str,
+    source_year: Optional[str] = None,
+    max_choices: Optional[int] = None,
+) -> List[str]:
+    """
+  Return the ordered list of choice items (fruits, stocks, clusters, cities).
+
+  If max_choices is set, keep only the first max_choices entries in that list.
+  """
     if agent_name == "farmer":
-        products = FRUITS[source_year]
+        if source_year is None:
+            raise ValueError("source_year is required for farmer.")
+        products = list(FRUITS[source_year])
     elif agent_name == "trader":
-        products = STOCKS
+        products = list(STOCKS)
     elif agent_name == "powergrid":
-        products = POWERGRID_CLUSTERS
+        products = list(POWERGRID_CLUSTERS)
+    elif agent_name == "seir":
+        products = list(SEIR_SCHEDULES)
     else:
         raise ValueError(
-            "agent_name must be one of 'farmer', 'trader', or 'powergrid'"
+            "agent_name must be one of 'farmer', 'trader', 'powergrid', or 'seir'"
         )
+
+    if max_choices is None:
+        return products
+    if max_choices < 2:
+        raise ValueError(
+            f"max_choices must be at least 2 (got {max_choices}); "
+            "choice sets combine 2 or more items."
+        )
+    if max_choices > len(products):
+        raise ValueError(
+            f"max_choices={max_choices} exceeds pool size {len(products)} for {agent_name}."
+        )
+    return products[:max_choices]
+
+
+def get_combinations(
+    agent_name: str,
+    source_year: Optional[str] = None,
+    max_choices: Optional[int] = None,
+) -> List[Tuple[str, ...]]:
+    combs = []
+    products = get_product_pool(agent_name, source_year=source_year, max_choices=max_choices)
 
     for i in range(2, len(products) + 1):
         for c in combinations(products, i):

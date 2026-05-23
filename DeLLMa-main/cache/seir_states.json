@@ -1,0 +1,92 @@
+{
+    "epidemic peak timing": {
+        "early (days 10-25)": "somewhat likely",
+        "mid (days 25-40)": "likely",
+        "late (days 40-60)": "somewhat unlikely"
+    },
+    "transmission rate level": {
+        "low (beta < 0.3)": "somewhat unlikely",
+        "moderate (beta 0.3-0.5)": "likely",
+        "high (beta > 0.5)": "somewhat likely"
+    },
+    "recovery rate level": {
+        "slow (gamma < 0.1)": "somewhat likely",
+        "moderate (gamma 0.1-0.2)": "likely",
+        "fast (gamma > 0.2)": "somewhat unlikely"
+    },
+    "epidemic growth rate": {
+        "slow (doubling > 10 days)": "somewhat unlikely",
+        "moderate (doubling 5-10 days)": "likely",
+        "fast (doubling < 5 days)": "somewhat likely"
+    },
+    "pre-peak observation coverage for schedule days 5, 10, 20": {
+        "low": "very unlikely",
+        "moderate": "unlikely",
+        "high": "very likely"
+    },
+    "post-peak observation coverage for schedule days 5, 10, 20": {
+        "low": "very likely",
+        "moderate": "unlikely",
+        "high": "very unlikely"
+    },
+    "pre-peak observation coverage for schedule days 10, 20, 35": {
+        "low": "unlikely",
+        "moderate": "somewhat likely",
+        "high": "likely"
+    },
+    "post-peak observation coverage for schedule days 10, 20, 35": {
+        "low": "somewhat likely",
+        "moderate": "likely",
+        "high": "somewhat unlikely"
+    },
+    "pre-peak observation coverage for schedule days 15, 30, 45": {
+        "low": "unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "post-peak observation coverage for schedule days 15, 30, 45": {
+        "low": "unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "pre-peak observation coverage for schedule days 20, 35, 50": {
+        "low": "somewhat unlikely",
+        "moderate": "likely",
+        "high": "somewhat likely"
+    },
+    "post-peak observation coverage for schedule days 20, 35, 50": {
+        "low": "unlikely",
+        "moderate": "somewhat likely",
+        "high": "likely"
+    },
+    "pre-peak observation coverage for schedule days 25, 40, 55": {
+        "low": "somewhat likely",
+        "moderate": "likely",
+        "high": "somewhat unlikely"
+    },
+    "post-peak observation coverage for schedule days 25, 40, 55": {
+        "low": "unlikely",
+        "moderate": "somewhat likely",
+        "high": "likely"
+    },
+    "pre-peak observation coverage for schedule days 10, 30, 55": {
+        "low": "unlikely",
+        "moderate": "somewhat likely",
+        "high": "likely"
+    },
+    "post-peak observation coverage for schedule days 10, 30, 55": {
+        "low": "unlikely",
+        "moderate": "somewhat likely",
+        "high": "likely"
+    },
+    "pre-peak observation coverage for schedule days 20, 40, 60": {
+        "low": "somewhat likely",
+        "moderate": "likely",
+        "high": "somewhat unlikely"
+    },
+    "post-peak observation coverage for schedule days 20, 40, 60": {
+        "low": "unlikely",
+        "moderate": "somewhat likely",
+        "high": "likely"
+    }
+}

@@ -1,0 +1,125 @@
+# ============================================================
+# SEIR-SDE Data Generation Configuration
+# ============================================================
+# Output is written to DeLLMa-main/data/seir/ by default.
+# All paths are relative to the seir_sde_data_generation/ folder.
+# ============================================================
+
+# Output directory for DeLLMa integration artifacts.
+full_output_dir: "../DeLLMa-main/data/seir"
+
+# ------------------------------------------------------------
+# Population and initial conditions
+# ------------------------------------------------------------
+N: 100000    # total (closed) population
+# Global fallback initials (used only when city_initial_pool is empty)
+S0: 99920    # initially susceptible
+E0: 60       # initially exposed
+I0: 20       # initially infectious
+R0: 0       # initially recovered
+
+# Optional city-specific initials.
+# If provided, sample i uses city_initial_pool[i % len(city_initial_pool)].
+city_initial_pool:
+  - city_id: city1
+    S0: 99960
+    E0: 30
+    I0: 10
+  - city_id: city2
+    S0: 99945
+    E0: 40
+    I0: 15
+  - city_id: city3
+    S0: 99920
+    E0: 55
+    I0: 25
+  - city_id: city4
+    S0: 99890
+    E0: 75
+    I0: 35
+  - city_id: city5
+    S0: 99855
+    E0: 100
+    I0: 45
+  - city_id: city6
+    S0: 99810
+    E0: 130
+    I0: 60
+  - city_id: city7
+    S0: 99750
+    E0: 165
+    I0: 85
+  - city_id: city8
+    S0: 99670
+    E0: 220
+    I0: 110
+  - city_id: city9
+    S0: 99580
+    E0: 280
+    I0: 140
+  - city_id: city10
+    S0: 99470
+    E0: 350
+    I0: 180
+
+# ------------------------------------------------------------
+# Simulation time settings
+# ------------------------------------------------------------
+T: 60       # total observation window (days)
+dt: 0.1     # Euler-Maruyama step size (days); finer = smoother trajectories
+
+# ------------------------------------------------------------
+# Dataset size (single pool; no train/test split)
+# ------------------------------------------------------------
+# Number of accepted trajectories to generate after filtering.
+# Set this above 10 so the script can keep filter and still export first 10.
+num_samples: 30
+
+# Number of trajectories exported to CSV outputs.
+# The script takes the first output_num_samples from the filtered pool.
+output_num_samples: 10
+
+# ------------------------------------------------------------
+# Shared fixed dynamic parameters (same for all trajectories)
+# ------------------------------------------------------------
+fixed_theta:
+  beta: 0.24
+  sigma: 0.2
+  gamma: 0.14
+
+# ------------------------------------------------------------
+# Vaccine counterfactual settings (from data_generation.tex)
+# ------------------------------------------------------------
+# Vaccine protection applied at vaccine_day:
+#   P = min(vaccine_effectiveness * vaccine_quantity, S(vaccine_day))
+vaccine_effectiveness: 0.9
+vaccine_quantity: 1000  # P = min(VE*Q, S) = min(0.9*1000, S) = 900
+vaccine_day: 30
+# Counterfactual infection rate: beta^V = (1 - vaccine_beta_reduction) * beta
+vaccine_beta_reduction: 0.6
+
+# Utility window:
+#   U(a) = sum_{t=evaluation_day_start}^{evaluation_day_end} I^0(t)
+#        - sum_{t=evaluation_day_start}^{evaluation_day_end} I^V(t | a)
+evaluation_day_start: 31
+evaluation_day_end: 60
+
+# ------------------------------------------------------------
+# Trajectory filtering
+# (mirroring iDAD SIR-SDE practice of removing uninformative samples)
+# ------------------------------------------------------------
+enable_filtering: true
+
+# Keep a trajectory only if ALL enabled criteria are satisfied.
+# Thresholds are in absolute counts (not rates), except where named *_rate.
+filter_min_mean_infected:      1.0    # mean I(t) across time >= this
+filter_min_max_infected:       5.0    # max I(t) across time >= this
+filter_min_max_infected_rate:  0.0005 # max I(t)/N across time >= this
+
+# ------------------------------------------------------------
+# Misc
+# ------------------------------------------------------------
+seed: 123
+
+# Set to false to skip saving full trajectory CSVs (saves disk space).
+save_full_trajectories: true

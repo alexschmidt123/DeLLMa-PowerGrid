@@ -57,7 +57,7 @@ class PowerGridAgent(DeLLMaAgent):
         self,
         choices: List[str],
         path: str = os.path.join(PROJECT_ROOT, "data/powergrid/"),
-        raw_context_fname: str = "powergrid.txt",
+        raw_context_fname: str | None = None,
         temperature: float = 0.0,
         state_config: Optional[dataclass] = None,
         action_config: Optional[ActionConfig] = None,

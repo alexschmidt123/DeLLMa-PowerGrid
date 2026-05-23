@@ -1,6 +1,7 @@
 import os
 import json
 import argparse
+import shutil
 from typing import Dict
 
 from tqdm import tqdm
@@ -16,10 +17,31 @@ from utils.prompt_utils import (
 from agent.farmagent import FarmAgent
 from agent.tradeagent import TradeAgent
 from agent.powergridagent import PowerGridAgent
+from agent.seiragent import SEIRAgent
 from agent.agent import StateConfig, ActionConfig, PreferenceConfig
-from utils.data_utils import get_combinations, FRUITS, STOCKS
+from utils.data_utils import (
+    get_combinations,
+    get_product_pool,
+    STOCKS_SYMBOL_TO_NAME_MAP,
+)
 from utils.llm_client import get_model_name
 from functools import partial
+
+
+def _reset_result_folder(result_folder: str) -> None:
+    """Remove prior outputs so each run fully replaces results for this mode folder."""
+    if os.path.isdir(result_folder):
+        shutil.rmtree(result_folder)
+    os.makedirs(result_folder, exist_ok=True)
+
+
+def _reset_combo_output_dirs(combo_path: str) -> None:
+    """Clear prompt/response artifacts for one choice set before rewriting."""
+    for sub in ("prompt", "response"):
+        target = os.path.join(combo_path, sub)
+        if os.path.isdir(target):
+            shutil.rmtree(target)
+        os.makedirs(target, exist_ok=True)
 
 
 def parse_baseline_response(response: Dict[str, str]) -> int:
@@ -36,7 +58,7 @@ if __name__ == "__main__":
         "--agent_name",
         type=str,
         default="farmer",
-        choices=["farmer", "trader", "powergrid"],
+        choices=["farmer", "trader", "powergrid", "seir"],
     )
     parser.add_argument("--year", type=str, default="2021")
     parser.add_argument(
@@ -99,16 +121,16 @@ if __name__ == "__main__":
         ),
     )
     parser.add_argument(
-        "--max_combinations",
+        "--max_choices",
         type=int,
         default=None,
-        metavar="N",
+        metavar="X",
         help=(
-            "If set, only run the first N choice-set combinations (order from "
-            "get_combinations). Useful for quick tests; default runs all."
+            "Use only the first X items from the agent's dataset list "
+            "(e.g. first X cities for seir, first X stocks for trader). "
+            "Choice sets are all subsets of size 2..X from that pool. Default: full pool."
         ),
     )
-
     args = parser.parse_args()
     set_export_prompts_only(args.export_prompts_only)
 
@@ -124,10 +146,17 @@ if __name__ == "__main__":
     )
     print(f"[DeLLMa] results root: {effective_results_root}")
     if is_api_enabled():
-        print(
-            "DeLLMa: OpenAI API enabled (OPENAI_API_KEY detected). "
-            "Calling the model; responses are written to response/."
-        )
+        llm_backend = os.environ.get("LLM_BACKEND", "openai").strip().lower()
+        if llm_backend == "vllm":
+            print(
+                "DeLLMa: local vLLM backend enabled. "
+                "Calling the local model; responses are written to response/."
+            )
+        else:
+            print(
+                "DeLLMa: OpenAI API enabled (OPENAI_API_KEY detected). "
+                "Calling the model; responses are written to response/."
+            )
     else:
         print(
             "DeLLMa: offline mode — no API calls. "
@@ -137,7 +166,6 @@ if __name__ == "__main__":
         )
 
     if args.agent_name == "farmer":
-        products = FRUITS[args.year]
         domain = "agriculture"
         agent_init_fct = partial(
             FarmAgent,
@@ -145,12 +173,15 @@ if __name__ == "__main__":
         )
         budget = 10
     elif args.agent_name == "trader":
-        products = STOCKS
         domain = "stocks"
-        agent_init_fct = partial(
-            TradeAgent,
-            history_length=24,
-        )
+        trader_kwargs: Dict[str, object] = {"history_length": 24}
+        if args.max_choices is not None:
+            pool = get_product_pool("trader", max_choices=args.max_choices)
+            trader_kwargs["stock_pool"] = pool
+            trader_kwargs["stock_name_map"] = {
+                s: STOCKS_SYMBOL_TO_NAME_MAP[s] for s in pool
+            }
+        agent_init_fct = partial(TradeAgent, **trader_kwargs)
         budget = 10000
         args.year = ""
     elif args.agent_name == "powergrid":
@@ -161,6 +192,12 @@ if __name__ == "__main__":
             reveal_stability_stats=args.powergrid_reveal_stability_stats,
         )
         budget = 10000
+        args.year = ""
+    elif args.agent_name == "seir":
+        domain = "seir"
+        agent_init_fct = partial(SEIRAgent)
+        # One-shot allocation: first vaccine supply goes to one city.
+        budget = 1
         args.year = ""
     else:
         raise ValueError(f"Unknown agent_name: {args.agent_name}")
@@ -188,11 +225,17 @@ if __name__ == "__main__":
     else:
         raise ValueError(f"Unknown dellma mode: {args.dellma_mode}")
 
-    if not os.path.exists(result_folder):
-        os.makedirs(result_folder)
-    combs = get_combinations(args.agent_name, source_year=args.year)
-    if args.max_combinations is not None:
-        combs = combs[: args.max_combinations]
+    _reset_result_folder(result_folder)
+    print(f"[DeLLMa] cleared result folder (fresh run): {result_folder}")
+    product_pool = get_product_pool(
+        args.agent_name, source_year=args.year, max_choices=args.max_choices
+    )
+    if args.max_choices is not None:
+        print(f"[DeLLMa] choice pool (first {args.max_choices}): {product_pool}")
+    combs = get_combinations(
+        args.agent_name, source_year=args.year, max_choices=args.max_choices
+    )
+    print(f"[DeLLMa] running {len(combs)} choice set(s) (all subsets of the choice pool)")
     pbar = tqdm(combs)
     for choices in pbar:
         pbar.set_description(f"Processing {choices}")
@@ -226,12 +269,8 @@ if __name__ == "__main__":
             )
 
         path = f"{result_folder}/{'-'.join(choices)}"
-        if not os.path.exists(path):
-            os.makedirs(path)
-        if not os.path.exists(path + "/prompt"):
-            os.makedirs(path + "/prompt")
-        if not os.path.exists(path + "/response"):
-            os.makedirs(path + "/response")
+        os.makedirs(path, exist_ok=True)
+        _reset_combo_output_dirs(path)
 
         if args.dellma_mode == "cot":
             output = inference_fct(chain=prompts)

@@ -1,0 +1,13 @@
+Trader Evaluation Summary
+model: gpt-4o
+agent: trader
+generated_at: 2026-05-10 12:44:36 CDT
+
+method                                                        all_acc  all_opt
+---------------------------------------------------------------------------------------------------
+zero-shot                                                        27.5   53.361
+self-consistency                                               25.833   51.835
+cot                                                            23.333   49.621
+rank                                                           69.167   66.631
+rank-minibatch(sample_size=16,minibatch_size=32,overlap=25)    69.167   66.631
+rank-minibatch(sample_size=64,minibatch_size=32,overlap=50)    69.167   66.631

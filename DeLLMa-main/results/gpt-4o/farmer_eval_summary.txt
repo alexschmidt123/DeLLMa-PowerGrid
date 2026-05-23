@@ -1,0 +1,19 @@
+Farmer Evaluation Summary
+model: gpt-4o
+agent: farmer
+generated_at: 2026-05-10 11:37:03 CDT
+
+method                                                        all_acc  all_opt
+---------------------------------------------------------------------------------------------------
+zero-shot                                                      30.833   82.747
+self-consistency                                                 30.0   82.858
+cot                                                            34.167   80.493
+rank                                                           55.833   86.608
+rank-minibatch(sample_size=16,minibatch_size=32,overlap=0)       55.0   91.206
+rank-minibatch(sample_size=16,minibatch_size=32,overlap=25)      57.5   91.708
+rank-minibatch(sample_size=16,minibatch_size=32,overlap=50)    63.333   92.086
+rank-minibatch(sample_size=16,minibatch_size=32,overlap=75)      60.0   93.439
+rank-minibatch(sample_size=32,minibatch_size=32,overlap=25)    65.833   95.351
+rank-minibatch(sample_size=4,minibatch_size=32,overlap=25)     46.667   87.635
+rank-minibatch(sample_size=64,minibatch_size=32,overlap=25)    66.667   95.482
+rank-minibatch(sample_size=8,minibatch_size=32,overlap=25)     56.667   90.244

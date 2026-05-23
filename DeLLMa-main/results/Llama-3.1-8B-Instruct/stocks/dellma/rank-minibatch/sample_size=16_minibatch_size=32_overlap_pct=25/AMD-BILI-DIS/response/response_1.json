@@ -1,0 +1,4 @@
+{
+    "decision": "Action 1. inference_failed_fallback",
+    "explanation": "Inference failed after max retries."
+}

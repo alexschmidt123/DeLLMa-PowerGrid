@@ -1,0 +1,4 @@
+{
+    "decision": "Action 1. offline_placeholder: no API call \u2014 paste prompt_*_chatgpt.txt into your LLM and replace this file.",
+    "explanation": "No LLM backend configured (or --export-prompts-only). Response JSON is a stub; use saved *_chatgpt.txt prompts."
+}

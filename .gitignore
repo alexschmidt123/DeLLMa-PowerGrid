@@ -1,0 +1,4 @@
+# Python bytecode (any package in the repo)
+__pycache__/
+**/__pycache__/
+*.pyc
