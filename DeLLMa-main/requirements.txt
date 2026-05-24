@@ -1,25 +1,39 @@
-# SEIR data generation (../seir_sde_data_generation/) uses numpy, pandas, PyYAML,
-# matplotlib, and tqdm — all covered below.
+# DeLLMa-PowerGrid — Python 3.10–3.12 (3.11 recommended)
+#
+# Full install (OpenAI API + local vLLM + evaluation + SEIR data scripts):
+#   conda create -n dellma python=3.11 -y && conda activate dellma
+#   pip install -r requirements.txt
+#
+# OpenAI / evaluation only (no GPU, no vLLM) — use requirements-api.txt instead.
+#
+# Notes:
+# - vllm==0.10.0 pulls torch==2.7.1 (CUDA 12.6 wheels). Needs an NVIDIA GPU + driver.
+# - openai is capped at 1.90.x because vllm 0.10.x requires that range.
+# - ../seir_sde_data_generation/ uses numpy, pandas, PyYAML, matplotlib (below).
 
-# --- API / configuration ---
-# python-dotenv: load DeLLMa-main/.env (OPENAI_API_KEY). Manual fallback exists in code if missing.
+# ---------------------------------------------------------------------------
+# Core — inference orchestration, agents, evaluation
+# ---------------------------------------------------------------------------
 python-dotenv>=1.0.1,<2
-# openai: keep in 1.x for compatibility with CUDA 12.6-compatible vLLM pin below.
-openai>=1.56.0,<2
-# local backend (optional): pin to CUDA 12.6-compatible line for lab 4090 driver.
+# vllm 0.10.x requires openai 1.87–1.90 (install requirements-api.txt for newer openai)
+openai>=1.87.0,<=1.90.0
+numpy>=2.0,<2.5
+pandas>=2.2.2,<3
+PyYAML>=6.0.1,<7
+tqdm>=4.65.0,<5
+choix==0.3.5
+scipy>=1.13,<2
+matplotlib>=3.9,<4
+scikit-learn>=1.5,<2
+
+# ---------------------------------------------------------------------------
+# Local LLM backend (optional if you only use OpenAI API)
+# Installs: torch==2.7.1, torchvision, triton, fastapi, etc.
+# ---------------------------------------------------------------------------
 vllm==0.10.0
-# vLLM 0.10 runtime is not compatible with transformers 5.x tokenizer API.
+# Keep transformers 4.x for stable tokenizers with vLLM 0.10 (pip resolves before vllm if listed first)
 transformers>=4.53.2,<5
 tokenizers>=0.21.1,<0.22
 huggingface-hub>=0.33.0,<1
-
-choix==0.3.5
-matplotlib>=3.9,<4
-numpy>=2.0,<2.3
-pandas>=2.2.2,<3
-PyYAML==6.0.1
-# Keep protobuf <7 to avoid opentelemetry-proto conflict warnings in this env.
+# Avoid opentelemetry / vllm proto version clashes
 protobuf>=5,<7
-scipy>=1.13,<2
-scikit-learn>=1.5,<2
-tqdm==4.65.0

@@ -1,0 +1,16 @@
+# DeLLMa — OpenAI API + evaluation only (no vLLM / no GPU stack)
+#
+#   conda create -n dellma python=3.11 -y && conda activate dellma
+#   pip install -r requirements-api.txt
+
+python-dotenv>=1.0.1,<2
+openai>=1.56.0,<2
+numpy>=2.0,<2.5
+pandas>=2.2.2,<3
+PyYAML>=6.0.1,<7
+tqdm>=4.65.0,<5
+choix==0.3.5
+scipy>=1.13,<2
+matplotlib>=3.9,<4
+scikit-learn>=1.5,<2
+protobuf>=5,<7
